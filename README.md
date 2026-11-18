@@ -19,6 +19,16 @@ Gloam pretends every pixel was laid by a broad pen held at 45°. Strokes that tr
 
 ![Specimen](images/specimen.png)
 
+## Examples
+
+**https://taituo.github.io/gloam/examples/**: three pages that show Gloam in use. All of them are lit with ordered (Bayer) dithering, and they share one small dither engine ([`docs/examples/assets/dither.js`](docs/examples/assets/dither.js)).
+
+| | |
+|---|---|
+| [**Book**](https://taituo.github.io/gloam/examples/book.html): *The Lantern Keeper of Gloamhollow*, an illuminated pixel book with a tooled-leather cover, aged dithered paper, Lantern drop caps, Pico marginalia, a Finnish page and an interactive night-scene figure. | ![Book](images/ex-book.png) |
+| [**Game menus**](https://taituo.github.io/gloam/examples/menus.html): *Quest for the Crooked Nib*. A live 320 × 180 dithered world (aurora, moon, parallax mountains, castle, embers) behind a title screen, main menu, options, saves, codex, dialogue, credits and a quit screen. The options really change the scene's palette and dither matrix (off / 2×2 / 4×4 / 8×8). It has chip sounds and an optional chiptune, and the UI is snapped to the scene's pixel grid. | ![Menus](images/ex-menus.png) |
+| [**Presentation**](https://taituo.github.io/gloam/examples/slides.html): the pitch for Gloam, played as ten stages. It has a HUD with score, hearts and a timer, a boss fight against blurry text, a character-select screen of the seven cuts, a bar chart of ink measured from the sources, an overworld map, and a continue countdown. Every slide change is a different dither transition. | ![Slides](images/ex-slides.png) |
+
 ## Families
 
 | Family | What it is | Files |
@@ -129,6 +139,7 @@ source/build.py     bitmaps → TTF / OTF / WOFF2 for all six families, plus COL
 source/proof.py   pixel-exact PNG proofs, optionally with the Lantern layers
 site/             specimen page template and builder
 docs/index.html   built specimen (GitHub Pages)
+docs/examples/    book, game menus, presentation + dither engine
 images/           README images
 ```
 

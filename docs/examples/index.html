@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" data-pal="ember">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gloam in the wild — examples</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/gloam.css">
+<style>
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+main{position:relative;z-index:1;max-width:1152px;margin:0 auto;padding:72px 32px 96px}
+.top{display:flex;justify-content:space-between;align-items:center;color:#8d849b}
+.top a{text-decoration:none}.top a:hover{color:var(--acc)}
+h1{font:normal 96px/112px "Gloam Lantern";margin-top:56px}
+.lede{font:32px/48px "Gloam Bone";color:#ebe3cf;max-width:860px;margin-top:8px}
+.lede em{font-style:normal;color:var(--acc)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:56px}
+.card{display:block;text-decoration:none;background:#100d16;position:relative;transition:transform .1s steps(2)}
+.card:hover{transform:translateY(-4px)}
+.card:hover .go{color:var(--hi)}
+.card canvas{display:block;width:100%;aspect-ratio:16/10;image-rendering:pixelated}
+.card .tx{padding:20px 22px 24px}
+.card .k{font:16px/16px "Gloam Pico";color:var(--acc)}
+.card h2{font:normal 32px/40px "Gloam";margin-top:10px}
+.card p{font:16px/24px "Gloam Bone";color:#8d849b;margin-top:6px;min-height:72px}
+.card .go{font:16px/16px "Gloam";color:var(--acc);margin-top:14px}
+.pals{display:flex;gap:8px;margin-top:40px;align-items:center;color:#4a4256}
+.pals button{width:24px;height:24px}
+.pals button[aria-pressed=true]{outline:2px solid #ebe3cf;outline-offset:2px}
+.foot{margin-top:72px;color:#4a4256;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.foot a{color:#8d849b;text-decoration:none}.foot a:hover{color:var(--acc)}
+@media (max-width:960px){.grid{grid-template-columns:1fr}h1{font-size:64px;line-height:80px}.lede{font-size:16px;line-height:24px}}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<main>
+  <div class="top"><a href="../index.html">&larr; Gloam specimen</a><a href="https://github.com/taituo/gloam">github.com/taituo/gloam</a></div>
+  <h1 class="lan">In the wild</h1>
+  <p class="lede">Three places for Gloam: a printed book, a game&rsquo;s menus, and a talk you play like a level. Everything is set in the seven Gloam cuts and lit with <em>ordered dither</em>.</p>
+  <div class="grid">
+    <a class="card px" href="book.html"><canvas id="pv-book" width="160" height="100"></canvas><div class="tx"><div class="k">01 &middot; BOOK</div><h2>The Lantern Keeper</h2><p>An illuminated pixel book: leather cover, aged paper, drop caps, marginalia and a Finnish page.</p><div class="go">Open the book &#x25B6;</div></div></a>
+    <a class="card px" href="menus.html"><canvas id="pv-menu" width="160" height="100"></canvas><div class="tx"><div class="k">02 &middot; GAME MENUS</div><h2>Quest for the Crooked Nib</h2><p>Title screen, menus, options, saves, codex, dialogue and credits over a live dithered world. Chip sounds.</p><div class="go">Press start &#x25B6;</div></div></a>
+    <a class="card px" href="slides.html"><canvas id="pv-slides" width="160" height="100"></canvas><div class="tx"><div class="k">03 &middot; PRESENTATION</div><h2>The Pitch, Played</h2><p>Ten slides as ten stages: HUD, boss fight, overworld map, real stats and a continue screen.</p><div class="go">Insert coin &#x25B6;</div></div></a>
+  </div>
+  <div class="pals" id="pals"><span class="pico" style="font-size:16px;line-height:16px;margin-right:8px">LANTERN</span></div>
+  <div class="foot"><span>Type design by Tuomas Taini.</span><span class="pico" style="font-size:16px;line-height:16px">ORDERED DITHER &middot; BAYER 8&times;8</span></div>
+</main>
+<script src="assets/dither.js"></script>
+<script>
+(() => {
+const D = window.Dither, $ = s => document.querySelector(s);
+const PALS = ['ember', 'moss', 'frost', 'ghost', 'blood', 'bone'];
+let pal = 'ember';
+try { pal = localStorage.getItem('gloam:examples-pal') || pal; } catch (e) {}
+PALS.forEach(p => { const b = document.createElement('button'); b.style.background = D.PALETTES[p][6]; b.title = p; b.dataset.p = p; b.onclick = () => setPal(p); $('#pals').appendChild(b); });
+function setPal(p) { pal = p; document.documentElement.dataset.pal = p; document.querySelectorAll('#pals button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === p)); try { localStorage.setItem('gloam:examples-pal', p); } catch (e) {} }
+setPal(pal);
+
+const sky = $('#sky'), sx = sky.getContext('2d'); let sb;
+function size() { sky.width = Math.ceil(innerWidth / 4); sky.height = Math.ceil(innerHeight / 4); sb = new D.Buffer(sky.width, sky.height); }
+addEventListener('resize', size); size();
+const h32 = (x, y) => { let h = x * 374761393 + y * 668265263; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967295; };
+function drawSky(t) {
+  const P = D.PALETTES[pal].map(D.u32), W = sb.w, H = sb.h, px = sb.px;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let v = .03 + Math.max(0, 1 - Math.hypot(x - W * .8, y + H * .1) / (W * .7)) * .3;
+    v += Math.max(0, Math.sin(x * .03 + t * .3 + Math.sin(y * .05 + t * .4) * 1.5)) * Math.max(0, 1 - y / (H * .6)) * .08;
+    if (h32(x, y) > .996 && Math.sin(t * 2 + h32(y, x) * 50) > 0) v = .7;
+    px[y * W + x] = P[D.q(v, 8, x, y)];
+  }
+  sb.blit(sx, W, H);
+}
+/* previews */
+function prev(id, fn, t) { const c = document.getElementById(id), b = new D.Buffer(160, 100); fn(b, t); b.blit(c.getContext('2d'), 160, 100); }
+const paper = ['#5e4c34', '#8a7550', '#b3a07a', '#cdbd98', '#ddd0b0', '#e9dfc4', '#f3ecd9'].map(D.u32);
+function pBook(b, t) {
+  const P = D.PALETTES[pal].map(D.u32);
+  for (let y = 0; y < 100; y++) for (let x = 0; x < 160; x++) {
+    const g = Math.max(0, 1 - Math.hypot(x - 120 - Math.sin(t) * 10, y - 10) / 90);
+    let c = P[D.q(.05 + g * .6, 8, x, y)];
+    const inBook = x > 22 && x < 138 && y > 14 && y < 90;
+    if (inBook) { const sp = Math.abs(x - 80), e = Math.min(x - 22, 138 - x, y - 14, 90 - y); let v = .85 - Math.max(0, 1 - sp / 10) * .5 - Math.max(0, 1 - e / 4) * .3; c = paper[D.q(v, 7, x, y)];
+      const line = (y - 24) % 5 === 0 && y > 30 && y < 82 && ((x > 30 && x < 74) || (x > 86 && x < 130)) && h32(x >> 2, y) > .12; if (line) c = D.u32('#5e4c34');
+      if (x > 30 && x < 41 && y > 24 && y < 35) c = (x + y) % 2 ? D.u32('#9a2a1c') : P[6]; }
+    b.px[y * 160 + x] = c;
+  }
+}
+function pMenu(b, t) {
+  const P = D.PALETTES[pal].map(D.u32);
+  for (let y = 0; y < 100; y++) for (let x = 0; x < 160; x++) {
+    const r1 = 62 - 8 * Math.sin((x + t * 4) * .05 + 1), r2 = 78 - 6 * Math.sin((x + t * 9) * .08 + 3);
+    let v = y > r2 ? .05 : y > r1 ? .14 : .1 + y / 62 * .45 + (Math.hypot(x - 128, y - 22) < 8 ? .5 : 0);
+    if (h32(x, y) > .993 && y < 50) v = .95;
+    if (x > 20 && x < 70 && y > 34 && y < 84) { v = (x + y) % 2 ? .02 : v; if ((y - 40) % 9 === 0 && x > 30 && x < 60) v = y === 49 ? .95 : .6; if (x === 25 && y === 49) v = .95; }
+    b.px[y * 160 + x] = P[D.q(v, 8, x, y)];
+  }
+}
+const MAPP = ['#0f1d38', '#1a3156', '#2b5584', '#4a8ac0', '#d8c79c', '#5f8a2a', '#36571f', '#1f3a1a', '#524a39', '#857a5f', '#e9dfc4'].map(D.u32);
+function vn(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, s = q => q * q * (3 - 2 * q); const a = h32(xi, yi), b = h32(xi + 1, yi), c = h32(xi, yi + 1), d = h32(xi + 1, yi + 1); return a + (b - a) * s(xf) + (c - a) * s(yf) + (a - b - c + d) * s(xf) * s(yf); }
+function pSlides(b, t) {
+  for (let y = 0; y < 100; y++) for (let x = 0; x < 160; x++) {
+    const h = vn(x / 20 + 3, y / 20) * .65 + vn(x / 7, y / 7) * .35, k = Math.max(0, Math.min(.999, (h - .04) / .58)) * 10, i = k | 0;
+    b.px[y * 160 + x] = MAPP[(k - i > D.thr(x, y)) ? i + 1 : i];
+  }
+  const pts = [[16, 72], [40, 54], [66, 66], [90, 44], [116, 58], [140, 36]], w = D.u32('#ebe3cf'), k = D.u32('#05040a');
+  for (let i = 0; i < pts.length - 1; i++) { const [x0, y0] = pts[i], [x1, y1] = pts[i + 1], n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let s = 0; s <= n; s++) if ((s + (t * 6 | 0)) % 4 < 2) { const x = Math.round(x0 + (x1 - x0) * s / n), y = Math.round(y0 + (y1 - y0) * s / n); b.px[y * 160 + x] = w; b.px[(y + 1) * 160 + x] = k; } }
+  for (let y = 0; y < 8; y++) for (let x = 0; x < 160; x++) b.px[y * 160 + x] = k;
+  const sp = Math.floor(t * 1.2) % 5, a = pts[sp], c = pts[sp + 1], f = (t * 1.2) % 1, px = Math.round(a[0] + (c[0] - a[0]) * f), py = Math.round(a[1] + (c[1] - a[1]) * f) - 3;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) b.px[(py + dy) * 160 + px + dx] = D.u32(D.PALETTES[pal][6]);
+}
+let last = 0;
+function loop(now) { if (now - last > 60) { last = now; const t = now / 1000; drawSky(t); prev('pv-book', pBook, t); prev('pv-menu', pMenu, t); prev('pv-slides', pSlides, t); } requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

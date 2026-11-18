@@ -2,7 +2,7 @@
 
 Run after source/build.py:  python3 site/build_site.py
 """
-import base64, io, json, os, sys, zipfile
+import base64, io, json, os, shutil, sys, zipfile
 import unicodedata as ud
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,6 +71,12 @@ def main():
     t = t.replace('{{ZIP}}', base64.b64encode(kit_zip()).decode())
     t = t.replace('{{TTF}}', b64f('Gloam-Regular.ttf')).replace('{{LTTF}}', b64f('GloamLantern-Regular.ttf'))
     os.makedirs(os.path.join(ROOT, 'docs'), exist_ok=True)
+    # web fonts for the example pages (docs/examples/)
+    ex_fonts = os.path.join(ROOT, 'docs', 'examples', 'fonts')
+    os.makedirs(ex_fonts, exist_ok=True)
+    for fn in sorted(os.listdir(FONTS)):
+        if fn.endswith('.woff2'):
+            shutil.copyfile(os.path.join(FONTS, fn), os.path.join(ex_fonts, fn))
     out = os.path.join(ROOT, 'docs', 'index.html')
     open(out, 'w', encoding='utf-8').write(t)
     print(out, len(t) // 1024, 'KB')

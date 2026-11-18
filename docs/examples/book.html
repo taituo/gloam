@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" data-pal="ember">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Lantern Keeper of Gloamhollow — a book set in Gloam</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/gloam.css">
+<style>
+body{min-height:100vh;overflow:hidden;--paper:#e9dfc4;--ink:#2b2118;--red:#9a2a1c;--brown:#6b5a44}
+#room{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.top{position:fixed;left:0;right:0;top:0;height:48px;display:flex;align-items:center;gap:20px;padding:0 16px;z-index:5;color:#8d849b}
+.top .t{margin:0 auto;color:#ebe3cf}
+.top a{text-decoration:none}.top a:hover,.top button:hover{color:var(--acc)}
+.top .on{color:var(--acc)}
+.stage{position:fixed;inset:48px 0 64px;display:flex;align-items:center;justify-content:center;z-index:2}
+.book{position:relative;display:flex;filter:drop-shadow(0 8px 0 rgba(0,0,0,.45))}
+.page{position:relative;width:448px;height:640px;color:var(--ink);overflow:hidden}
+.page>canvas.paper{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.page .c{position:absolute;inset:0;padding:64px 48px 64px;z-index:1}
+.page.left .c{padding-left:48px;padding-right:56px}.page.right .c{padding-left:56px;padding-right:48px}
+.rh{position:absolute;top:26px;left:0;right:0;text-align:center;font:16px/16px "Gloam Pico";color:var(--brown);letter-spacing:0}
+.folio{position:absolute;bottom:26px;left:0;right:0;text-align:center;font:16px/16px "Gloam Bone Mono";color:var(--brown)}
+.c p{font:16px/24px "Gloam Bone";margin-bottom:12px;hyphens:none}
+.c p.lead{margin-top:4px}
+.kick{font:16px/16px "Gloam Pico";color:var(--red);margin-bottom:8px}
+.c h2{font:32px/40px "Gloam";font-weight:normal;margin-bottom:20px}
+.drop{float:left;width:80px;height:80px;margin:4px 12px 2px 0;display:flex;align-items:center;justify-content:center;font:64px/64px "Gloam Lantern";position:relative}
+.drop span{position:relative;top:2px}
+.note{display:flex;gap:12px;font:16px/16px "Gloam Pico";color:var(--red);margin:4px 0 14px;line-height:24px}.note i{flex:none;width:8px}
+.toc{font:16px/24px "Gloam Bone Mono";white-space:pre;margin-top:8px}
+.toc b{font-weight:normal;color:var(--red)}
+.epi{margin-top:36px;text-align:center}
+.epi p{color:var(--brown)}
+.center{text-align:center}
+.title-page{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:6px}
+.title-page .orn{font:48px/48px "Gloam Lantern"}
+.fig{display:block;margin:0 auto 14px;cursor:none}
+.cap{font:16px/24px "Gloam Bone";color:var(--brown);text-align:center}
+.cap b{font-weight:normal;color:var(--ink)}
+.colo{font:16px/24px "Gloam Bone Mono";white-space:pre;margin:10px 0 16px}
+.specs span{display:block;font-size:16px;line-height:24px}
+.endpaper .c{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.endpaper .fin{font:96px/96px "Gloam Lantern"}
+/* cover */
+.cover{position:relative;width:448px;height:640px;cursor:pointer}
+.cover canvas{position:absolute;inset:0;width:100%;height:100%}
+.cover .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;color:#e9dfc4}
+.cover .t1{font:16px/16px "Gloam Pico";color:#c9a24a;margin-bottom:6px}
+.cover .t2{font:64px/72px "Gloam Lantern"}
+.cover .t3{font:32px/48px "Gloam";color:#d8c79c;margin-top:4px}
+.cover .t4{font:16px/16px "Gloam Pico";color:#8a7550;position:absolute;bottom:56px;left:0;right:0}
+.cover .hint{position:absolute;bottom:-40px;left:0;right:0;font:16px/16px "Gloam";color:#8d849b}
+.pager{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:center;gap:16px;z-index:5;color:#8d849b}
+.pager button{padding:6px 12px}.pager button:hover{color:var(--acc)}
+.dots{display:flex;gap:6px}.dots i{width:8px;height:8px;background:#3a3048;display:block}.dots i.on{background:var(--acc)}
+@media (max-width:980px){
+  body{overflow:auto}
+  .stage{position:relative;inset:auto;padding:64px 8px 88px;min-height:100vh}
+  .page{width:min(448px,calc(100vw - 16px))}
+  .page.hide{display:none}
+  .top .t{display:none}
+  .cover{width:min(448px,calc(100vw - 16px))}
+}
+</style>
+</head>
+<body class="crt-off">
+<canvas id="room"></canvas>
+<div class="top">
+  <a href="index.html">&larr; Examples</a>
+  <span class="t">The Lantern Keeper of Gloamhollow</span>
+  <button id="lamp" class="on" title="Desk lamp">&#x2726; Lamp</button>
+  <button id="snd" title="Page sounds">&#x266A; Sound</button>
+</div>
+<main class="stage"><div class="book" id="book"></div></main>
+<nav class="pager" id="pager"><button id="prev">&#x25C0; Prev</button><div class="dots" id="dots"></div><button id="next">Next &#x25B6;</button></nav>
+
+<script src="assets/dither.js"></script>
+<script>
+(() => {
+const D = window.Dither, $ = s => document.querySelector(s);
+const PAPER = ['#5e4c34','#8a7550','#b3a07a','#cdbd98','#ddd0b0','#e9dfc4','#f3ecd9'];
+
+/* ---------------- pages ---------------- */
+const drop = (L) => `<div class="drop" data-dither=".32 #9a2a1c #e3d6b4 2"><span class="lan">${L}</span></div>`;
+const PAGES = [
+ {cls:'title', html:`<div class="title-page">
+    <div class="orn lan">&#x2726;</div>
+    <div class="pico" style="font-size:16px;line-height:16px;color:#9a2a1c;margin-top:18px">THE</div>
+    <div class="gloam" style="font-size:48px;line-height:56px">Lantern Keeper</div>
+    <div class="gloam" style="font-size:32px;line-height:40px;color:#6b5a44">of Gloamhollow</div>
+    <div class="bone" style="margin-top:28px;color:#6b5a44">a short tale, set in Gloam</div>
+    <div class="pico" style="position:absolute;bottom:56px;left:0;right:0;font-size:16px;line-height:16px;color:#8a7550">GLOAM PRESS &middot; MMXXVI</div></div>`},
+ {rh:'THE LANTERN KEEPER', html:`<h2>Contents</h2>
+<div class="toc"><b>I.  </b> The Crooked Nib ............ 3
+<b>II. </b> Nine Hundred Shapes ........ 5
+     Fig. 1, the tower .......... 6
+<b>III.</b> What the Fog Kept .......... 7
+     Kun sumu nousee ............ 8
+     Colophon ................... 9</div>
+<div class="epi"><div class="lan" style="font-size:32px;line-height:32px">&#x2726;</div><p style="margin-top:14px">&ldquo;Up-strokes thin, down-strokes thick.<br>Even the dots lean.&rdquo;</p><p class="pico" style="font-size:16px;line-height:16px">&mdash; THE KEEPERS&rsquo; RULE</p></div>`},
+ {rh:'I &middot; THE CROOKED NIB', html:`<div class="kick">CHAPTER ONE</div><h2>The Crooked Nib</h2>
+${drop('E')}<p class="lead">very evening, when the fog came up from the marsh and filled the streets of Gloamhollow like milk poured into a bowl, Ilse Varjo climbed the hundred and twelve steps of the lantern tower and lit the lamp at the top.</p>
+<p>She had done it for nineteen years. Her mother had done it for thirty before her, and her mother&rsquo;s father for longer than anyone had bothered to count.</p>
+<p>The lamp did not guide ships. There was no sea within three days&rsquo; walk of Gloamhollow. It guided letters.</p>`},
+ {rh:'THE LANTERN KEEPER', html:`<p>That was the part visitors never believed. In Gloamhollow, words drifted. A notice pinned to the market board at noon would, by nightfall, have wandered half a line from where it was set. Shop signs slid off their boards. Love letters rearranged themselves into recipes, and recipes into complaints.</p>
+<p>Only the lamp kept them still. Its light fell through a lens ground from old ink-glass, and wherever it touched a page the letters remembered their places and went back to them, a little sheepishly, like cats called in at dusk.</p>
+<div class="note"><i data-dither=".5 #9a2a1c - 2"></i><span>&#x2726; The ink-glass lens is still in the town museum. Do not touch it. &mdash; T.</span></div>
+<p>Ilse did not think of herself as anyone important. She thought of herself as the person who carried oil up a staircase.</p>`},
+ {rh:'II &middot; NINE HUNDRED SHAPES', html:`<div class="kick">CHAPTER TWO</div><h2>Nine Hundred Shapes</h2>
+${drop('T')}<p class="lead">he trouble began with the nib.</p>
+<p style="clear:both">Every keeper wrote the night&rsquo;s entry in the great ledger with the same pen: a broad, square-cut nib of black iron, worn crooked by a century of thumbs. Held at its old slant, it drew thin lines going up and to the right, and thick lines going down. Every letter in the ledger leaned the same way, and the town&rsquo;s letters, seeing them, leaned along.</p>
+<p>Ilse had once counted the shapes the nib could make, capitals and small letters, figures, marks for money and for surprise, and stopped at nine hundred, because the candle ran out.</p>`},
+ {rh:'THE LANTERN KEEPER', html:`<canvas class="fig" id="fig" width="352" height="352"></canvas>
+<p class="cap"><b>Fig. 1</b> &mdash; The tower at Gloamhollow, in eight shades of night. Ordered dither, 8 &times; 8.</p>
+<p class="cap pico" style="font-size:16px;line-height:16px;margin-top:6px;color:#9a2a1c">HOVER TO CARRY THE LAMP</p>`},
+ {rh:'III &middot; WHAT THE FOG KEPT', html:`<div class="kick">CHAPTER THREE</div><h2>What the Fog Kept</h2>
+${drop('O')}<p class="lead">n the night the nib snapped, the fog came in thicker than anyone remembered.</p>
+<p>Ilse wrote the entry anyway, with a sewing needle dipped in ink. Her lines came out all the same width, one hair thin, with nothing to lean on. By midnight the letters of Gloamhollow had begun to slide: down the walls, off the signs, out of the books, until the streets were ankle-deep in loose punctuation.</p>
+<p>So she did the only thing she could think of. She drew every letter twice, once thin as a skeleton and once thick around the bones, and hung the pages in the lamp.</p>
+<p>In the morning every word was home.</p>`},
+ {rh:'SUOMEKSI', html:`<div class="kick">SUOMEKSI</div><h2>Kun sumu nousee</h2>
+<p>Kun sumu nousee suolta, kirjaimet lähtevät vaeltamaan. Vain lyhdyn valo muistuttaa niitä niiden paikoista.</p>
+<p>Ilse sytyttää lyhdyn joka ilta. Jokainen viiva, jonka hän piirtää, on ohut noustessaan ja paksu laskeutuessaan, ja pisteetkin kallistuvat hiukan, kuin kumartaisivat.</p>
+<p>Aamulla jokainen sana on kotona.</p>
+<div class="center" style="margin-top:28px"><span class="lan" style="font-size:32px;line-height:32px">&#x2726;</span></div>
+<p class="center pico" style="font-size:16px;line-height:16px;margin-top:18px;color:#6b5a44">ÄÖÅ äöå &mdash; KAIKKI MUKANA</p>`},
+ {rh:'COLOPHON', html:`<h2>Colophon</h2>
+<p>This book is set in Gloam Bone at 16 pixels on a 24-pixel line. Headings are Gloam, initials Gloam Lantern in the Ember palette, marginalia Gloam Pico, and the contents Gloam Bone Mono. Paper, cover and figure are drawn with an 8 &times; 8 Bayer matrix.</p>
+<div class="specs" style="margin:14px 0 14px">
+  <span class="gloam">Gloam &mdash; headings</span>
+  <span class="bone">Gloam Bone &mdash; running text</span>
+  <span class="bmono">Bone Mono &mdash; tables</span>
+  <span class="pico">GLOAM PICO &mdash; MARGINALIA</span>
+  <span class="lan" style="font-size:32px;line-height:40px">Lantern</span>
+</div>
+<p>Type design by Tuomas Taini.</p>
+<p class="bmono" style="color:#6b5a44">github.com/taituo/gloam</p>`},
+ {cls:'endpaper', html:`<div class="fin lan">&#x2726;</div><div class="lan" style="font-size:48px;line-height:48px">Fin</div>`, endpaper:true},
+];
+
+/* ---------------- paper ---------------- */
+function hash(x, y) { let h = x * 374761393 + y * 668265263; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967295; }
+function vnoise(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, s = t => t * t * (3 - 2 * t);
+  const a = hash(xi, yi), b = hash(xi + 1, yi), c = hash(xi, yi + 1), d = hash(xi + 1, yi + 1);
+  return a + (b - a) * s(xf) + (c - a) * s(yf) + (a - b - c + d) * s(xf) * s(yf); }
+function paper(cv, side, seed, endpaper) {
+  const W = cv.width = Math.round(cv.clientWidth / 2) || 224, H = cv.height = 320;
+  const buf = new D.Buffer(W, H);
+  const spots = Array.from({length: 7}, (_, i) => [hash(seed, i) * W, hash(i, seed) * H, 2 + hash(seed + i, 3) * 6]);
+  if (endpaper) {
+    D.field(buf, ['#2c1324','#4f1d26','#8a3324','#d0662a'], (x, y) => { const s = ((x + y) % 16) / 16; const v = vnoise(x / 9, y / 9); return .15 + (s < .5 ? .35 : 0) + v * .25; });
+  } else {
+    D.field(buf, PAPER, (x, y) => {
+      const ex = Math.min(x, W - 1 - x), ey = Math.min(y, H - 1 - y);
+      const inner = side === 'left' ? W - 1 - x : side === 'right' ? x : 999;
+      let t = .86 + (vnoise(x / 14 + seed, y / 14) - .5) * .12;
+      t -= Math.max(0, 1 - Math.min(ex, ey) / 10) * .38;
+      t -= Math.max(0, 1 - inner / 34) ** 1.6 * .5;
+      for (const [sx, sy, r] of spots) { const d = Math.hypot(x - sx, y - sy); if (d < r) t -= (1 - d / r) * .14; }
+      return t;
+    });
+  }
+  buf.blit(cv.getContext('2d'), W, H);
+}
+function leather(cv) {
+  const W = cv.width = 224, H = cv.height = 320, buf = new D.Buffer(W, H);
+  D.field(buf, ['#0d0608','#1c0c10','#2c1218','#3f1a1e','#5a2622','#8a5a2a','#c9a24a'], (x, y) => {
+    const ex = Math.min(x, W - 1 - x), ey = Math.min(y, H - 1 - y), e = Math.min(ex, ey);
+    let t = .38 + (vnoise(x / 6, y / 6) - .5) * .22 + (vnoise(x / 30, y / 30) - .5) * .18;
+    if (e === 12 || e === 15) t = .95;                              // gold fillets
+    if (e < 4) t -= .25;
+    if (e > 15 && e < 28 && ((x + y) % 6 === 0 || (x - y + 600) % 6 === 0) && e % 2) t = .7;   // tooling
+    const cx = W / 2, cy = H / 2 - 10, r = Math.hypot(x - cx, (y - cy) * .8);
+    if (r < 70) t += (1 - r / 70) * .18;
+    return t;
+  });
+  buf.blit(cv.getContext('2d'), W, H);
+}
+
+/* ---------------- illustration ---------------- */
+let lampX = .62, lampY = .3;
+function drawFig(t) {
+  const cv = document.getElementById('fig'); if (!cv) return;
+  const W = 88, H = 88, buf = new D.Buffer(W, H);
+  const night = D.PALETTES.frost.slice(0, 7), glowP = D.PALETTES.ember;
+  const N = night.map(D.u32), G = glowP.map(D.u32), px = buf.px;
+  const tx = 30, ty = 22, lx = lampX * W, ly = lampY * H;
+  const hill = x => 62 + Math.sin(x / 9) * 3 + Math.sin(x / 4.3) * 1.5;
+  const hill2 = x => 70 + Math.sin(x / 13 + 2) * 4;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let col, gl = 0;
+    const tower = x >= tx && x < tx + 8 && y >= ty && y < hill(x) + 2;
+    const lamp = x >= tx - 1 && x < tx + 9 && y >= ty - 7 && y < ty;
+    const g1 = Math.max(0, 1 - Math.hypot(x - (tx + 4), (y - (ty - 4)) * 1.1) / 30) * (.9 + Math.sin(t * 7) * .05);
+    const g2 = Math.max(0, 1 - Math.hypot(x - lx, y - ly) / 18);
+    gl = Math.max(g1, g2 * .9);
+    if (y > hill2(x)) col = N[D.q(.06 + gl * .25, 7, x, y)];
+    else if (y > hill(x)) col = N[D.q(.14 + gl * .3, 7, x, y)];
+    else if (tower) { const win = (x === tx + 3 || x === tx + 4) && (y % 9 === 3) && y > ty + 4; col = win ? G[6] : N[D.q(.2 + (x - tx) / 30 + gl * .2, 7, x, y)]; }
+    else if (lamp) { const roof = y < ty - 4 && Math.abs(x - (tx + 4)) > (y - (ty - 8)); col = roof ? 0 : (y < ty - 4 ? N[2] : G[D.q(.75 + Math.sin(t * 9 + x) * .1, 8, x, y)]); if (!col) col = null; }
+    else {
+      const moon = Math.hypot(x - 68, y - 16);
+      let v = .55 - y / H * .5 + (moon < 7 ? (moon < 6 && Math.hypot(x - 66, y - 15) > 4.5 ? .6 : 0) : Math.max(0, 1 - moon / 26) * .18);
+      const st = D.t8(x * 3, y * 5) > .985 && y < 50 && ((x * 13 + y * 7 + (t * 2 | 0)) % 9 !== 0);
+      if (st) v = .95;
+      col = N[D.q(v, 7, x, y)];
+    }
+    if (col == null) col = N[D.q(.55 - y / H * .5, 7, x, y)];
+    if (gl > .25 && !tower && y <= hill(x) && !lamp) { if (gl > .3 + D.t8(x, y) * .5) col = G[D.q(gl * .9 - .1, 8, x, y)]; }
+    px[y * W + x] = col;
+  }
+  buf.blit(cv.getContext('2d'), 352, 352);
+}
+
+/* ---------------- room ---------------- */
+const room = $('#room'), rx = room.getContext('2d');
+let mx = innerWidth * .7, my = innerHeight * .2, lampOn = true, rbuf;
+function roomSize() { room.width = Math.ceil(innerWidth / 4); room.height = Math.ceil(innerHeight / 4); rbuf = new D.Buffer(room.width, room.height); }
+function drawRoom(t) {
+  const W = rbuf.w, H = rbuf.h, P = D.PALETTES.ember.map(D.u32), px = rbuf.px, cx = mx / 4, cy = my / 4, R = Math.max(W, H) * .55;
+  const fl = 1 + Math.sin(t * 11) * .015 + Math.sin(t * 17) * .01;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const grain = Math.sin(y * .55 + vnoise(x / 18, y / 3) * 4) * .5 + .5;
+    const plank = (y % 22 === 0) ? -.08 : 0;
+    let v = .1 + grain * .08 + plank;
+    if (lampOn) { const g = Math.max(0, 1 - Math.hypot(x - cx, (y - cy) * 1.15) / (R * fl)); v += g * g * .75; }
+    px[y * W + x] = P[D.q(v, 8, x, y)];
+  }
+  rbuf.blit(rx, W, H);
+}
+addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; });
+addEventListener('resize', () => { roomSize(); layout(); });
+
+/* ---------------- book state ---------------- */
+let idx = -1;           // -1 = closed cover; otherwise first page shown
+const book = $('#book');
+const single = () => innerWidth <= 980;
+function pageEl(i, side) {
+  const p = PAGES[i]; if (!p) return '';
+  const folio = (i === 0 || p.endpaper) ? '' : `<div class="folio">&mdash; ${i + 1} &mdash;</div>`;
+  const rh = p.rh ? `<div class="rh">${p.rh}</div>` : '';
+  return `<div class="page ${side} ${p.cls || ''}" data-i="${i}"><canvas class="paper"></canvas>${rh}<div class="c">${p.html}</div>${folio}</div>`;
+}
+function render() {
+  if (idx < 0) {
+    book.innerHTML = `<div class="cover" id="cover"><canvas></canvas><div class="c"><div class="t1">THE</div><div class="t2 lan">Lantern<br>Keeper</div><div class="t3">of Gloamhollow</div><div class="t4">GLOAM PRESS</div></div><div class="hint">click to open &#x25B6;</div></div>`;
+    leather(book.querySelector('.cover canvas'));
+    $('#cover').onclick = () => go(0);
+  } else if (single()) {
+    book.innerHTML = pageEl(idx, idx % 2 ? 'right' : 'left');
+  } else {
+    const L = idx - (idx % 2);
+    book.innerHTML = pageEl(L, 'left') + pageEl(L + 1, 'right');
+  }
+  book.querySelectorAll('.page').forEach(pg => paper(pg.querySelector('canvas.paper'), single() ? 'none' : pg.classList.contains('left') ? 'left' : 'right', +pg.dataset.i * 7 + 3, PAGES[+pg.dataset.i].endpaper));
+  D.scan(book);
+  const fig = document.getElementById('fig');
+  if (fig) { fig.onpointermove = e => { const r = fig.getBoundingClientRect(); lampX = (e.clientX - r.left) / r.width; lampY = (e.clientY - r.top) / r.height; }; fig.onpointerleave = () => { lampX = .62; lampY = .3; }; }
+  const n = single() ? PAGES.length : PAGES.length / 2, cur = idx < 0 ? -1 : single() ? idx : idx >> 1;
+  $('#dots').innerHTML = Array.from({length: n}, (_, i) => `<i class="${i === cur ? 'on' : ''}"></i>`).join('');
+}
+function layout() { render(); }
+function go(i) {
+  const step = single() ? 1 : 2;
+  const max = single() ? PAGES.length - 1 : PAGES.length - 2;
+  if (i > max) i = max;
+  if (i < -1) i = -1;
+  if (i >= 0 && !single()) i -= i % 2;
+  if (i === idx) return;
+  const fwd = i > idx;
+  if (sound) { D.Sound.noise(.18, .03); D.Sound.blip(fwd ? 320 : 260, .08, 'triangle', .03, -80); }
+  D.transition({pattern: 'sweep', out: 'sweep', color: '#0b0910', cell: 4, ms: 220, mid: () => { idx = i; render(); }});
+}
+const next = () => go(idx < 0 ? 0 : idx + (single() ? 1 : 2));
+const prev = () => go(idx <= 0 ? -1 : idx - (single() ? 1 : 2));
+$('#next').onclick = next; $('#prev').onclick = prev;
+addEventListener('keydown', e => { if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); } if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); } });
+let sound = false;
+$('#snd').onclick = () => { sound = !sound; D.Sound.on = sound; $('#snd').classList.toggle('on', sound); if (sound) D.Sound.ok(); };
+D.Sound.on = false;
+$('#lamp').onclick = () => { lampOn = !lampOn; $('#lamp').classList.toggle('on', lampOn); };
+
+/* ---------------- loop ---------------- */
+let last = 0;
+function loop(now) {
+  if (now - last > 50) { last = now; drawRoom(now / 1000); drawFig(now / 1000); }
+  requestAnimationFrame(loop);
+}
+document.fonts.ready.then(() => { roomSize(); render(); requestAnimationFrame(loop); });
+})();
+</script>
+</body>
+</html>

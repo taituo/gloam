@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en" data-pal="ember">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gloam — Quest for the Crooked Nib (game menus)</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/gloam.css">
+<style>
+html,body{height:100%;overflow:hidden;background:#05040a}
+#wrap{position:fixed;left:0;top:0}
+#scene{position:absolute;left:0;top:0}
+#ui{position:absolute;left:0;top:0;--u:4px;user-select:none;-webkit-user-select:none}
+.scr{position:absolute;inset:0;display:none}
+.scr.on{display:block}
+.b{position:absolute;left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u));width:calc(var(--w)*var(--u));height:calc(var(--h)*var(--u))}
+.f8{font-family:"Gloam Pico";font-size:calc(8*var(--u));line-height:calc(8*var(--u))}
+.f16{font-size:calc(16*var(--u));line-height:calc(16*var(--u))}
+.f32{font-size:calc(32*var(--u));line-height:calc(32*var(--u))}
+.f48{font-size:calc(48*var(--u));line-height:calc(48*var(--u))}
+.lh14{line-height:calc(14*var(--u))}
+.ctr{text-align:center}
+.panel{box-shadow:0 0 0 var(--u) var(--acc),0 0 0 calc(2*var(--u)) #05040a;padding:calc(6*var(--u)) calc(8*var(--u))}
+.panel.dim{box-shadow:0 0 0 var(--u) #3a3048,0 0 0 calc(2*var(--u)) #05040a}
+.ink{color:#ebe3cf}.dimc{color:#8d849b}.acc{color:var(--acc)}.hi{color:var(--hi)}.red{color:#e2453c}
+.menu .it{display:flex;align-items:center;gap:calc(4*var(--u));color:#8d849b;cursor:pointer;white-space:nowrap}
+.menu .it::before{content:"\25B6";visibility:hidden;color:var(--acc);font-family:"Gloam";font-size:calc(16*var(--u))}
+.menu .it.sel{color:#ebe3cf}
+.menu .it.sel::before{visibility:visible;animation:nudge .5s steps(2) infinite}
+.menu .it.off{color:#4a4256}
+@keyframes nudge{50%{transform:translateX(calc(1*var(--u)))}}
+.opt{display:grid;grid-template-columns:calc(78*var(--u)) 1fr;align-items:center;cursor:pointer}
+.opt .v{display:flex;gap:calc(4*var(--u));align-items:center;color:#ebe3cf}
+.opt .v .ar{color:#4a4256}.opt.sel .v .ar{color:var(--acc)}
+.bar{font-family:"Gloam Bone Mono";letter-spacing:0}
+.slot{display:grid;grid-template-columns:calc(24*var(--u)) 1fr;gap:calc(8*var(--u));padding:calc(4*var(--u));cursor:pointer;align-items:center}
+.slot.sel{box-shadow:0 0 0 var(--u) var(--acc)}
+.slot canvas{width:calc(24*var(--u));height:calc(24*var(--u));display:block}
+.cdx{display:grid;grid-template-columns:repeat(12,calc(16*var(--u)));grid-auto-rows:calc(16*var(--u))}
+.cdx span{display:flex;align-items:center;justify-content:center;color:#8d849b;cursor:pointer}
+.cdx span.sel{color:#05040a;background:var(--acc)}
+#credits .roll{position:absolute;left:0;right:0;top:100%;text-align:center}
+.say{min-height:calc(48*var(--u))}
+.say.typing::after{content:""}
+.say::after{content:"\25BC";color:var(--acc);font-family:"Gloam";font-size:calc(16*var(--u));animation:blink .6s steps(1) infinite;margin-left:calc(4*var(--u))}
+.hint{color:#4a4256}
+#loading .fill{height:calc(6*var(--u))}
+.touch{display:none}
+body.is-touch .touch{display:flex}
+.tbtn{position:fixed;z-index:70;bottom:12px;display:flex;gap:8px}
+.tbtn button{width:52px;height:44px;background:rgba(20,16,28,.85);color:#ebe3cf;font:16px/16px "Gloam"}
+</style>
+</head>
+<body class="crt">
+<a class="backlink" href="index.html">&larr; Examples</a>
+<div id="wrap"><canvas id="scene" width="320" height="180"></canvas>
+<div id="ui">
+  <!-- TITLE -->
+  <section class="scr on" id="title">
+    <div class="b ctr" style="--x:0;--y:30;--w:320;--h:56"><div class="lan f48" id="logo">Gloam</div></div>
+    <div class="b ctr f8 acc" style="--x:0;--y:84;--w:320;--h:8">QUEST FOR THE CROOKED NIB</div>
+    <div class="b ctr f16 ink blink" style="--x:0;--y:124;--w:320;--h:16">Press Start</div>
+    <div class="b ctr f8 dimc" style="--x:0;--y:166;--w:320;--h:8">2026 TUOMAS TAINI &middot; GLOAM V1.2</div>
+  </section>
+  <!-- MAIN -->
+  <section class="scr" id="main">
+    <div class="b" style="--x:12;--y:10;--w:160;--h:32"><div class="lan f32" id="logo2">Gloam</div></div>
+    <div class="b panel menu f16 lh14" id="mainmenu" style="--x:14;--y:52;--w:116;--h:112"></div>
+    <div class="b panel dim" id="info" style="--x:146;--y:52;--w:160;--h:112">
+      <div class="f8 acc" id="infoK"></div>
+      <div class="f16 ink" id="infoT" style="margin-top:calc(6*var(--u))"></div>
+      <div class="bone f16 dimc" id="infoD" style="margin-top:calc(4*var(--u));line-height:calc(14*var(--u))"></div>
+    </div>
+  </section>
+  <!-- OPTIONS -->
+  <section class="scr" id="options">
+    <div class="b ctr lan f32" style="--x:0;--y:8;--w:320;--h:32">Options</div>
+    <div class="b panel menu f16 lh14" id="optmenu" style="--x:36;--y:44;--w:248;--h:126"></div>
+  </section>
+  <!-- SAVES -->
+  <section class="scr" id="saves">
+    <div class="b ctr lan f32" style="--x:0;--y:8;--w:320;--h:32">Saves</div>
+    <div class="b panel" id="slotbox" style="--x:30;--y:46;--w:260;--h:116;display:flex;flex-direction:column;gap:calc(2*var(--u))"></div>
+  </section>
+  <!-- CODEX -->
+  <section class="scr" id="codex">
+    <div class="b ctr lan f32" style="--x:0;--y:8;--w:320;--h:32">Codex</div>
+    <div class="b panel" style="--x:6;--y:44;--w:208;--h:92"><div class="cdx f16" id="cdx"></div></div>
+    <div class="b panel dim ctr" style="--x:222;--y:44;--w:92;--h:126">
+      <div class="lan f48" id="cbig" style="margin-top:calc(6*var(--u))">A</div>
+      <div class="f8 acc" id="ccode" style="margin-top:calc(8*var(--u))"></div>
+      <div class="f8 dimc" id="cname" style="margin-top:calc(4*var(--u))"></div>
+      <div class="f16 ink" style="margin-top:calc(6*var(--u))"><span class="bone" id="cbone"></span> <span class="bmono" id="cmono"></span> <span class="pico" id="cpico"></span></div>
+      <div class="f8 hint" style="margin-top:calc(4*var(--u))">BONE MONO PICO</div>
+    </div>
+    <div class="b f8 dimc" style="--x:12;--y:146;--w:200;--h:24;line-height:calc(10*var(--u))">ARROWS BROWSE &middot; ESC RETURNS<br><span class="acc" id="cfound"></span></div>
+  </section>
+  <!-- CREDITS -->
+  <section class="scr" id="credits"><div class="roll" id="roll"></div></section>
+  <!-- DIALOGUE -->
+  <section class="scr" id="talk">
+    <div class="b panel" style="--x:10;--y:104;--w:300;--h:68;display:grid;grid-template-columns:calc(40*var(--u)) 1fr;gap:calc(8*var(--u))">
+      <div class="lan f32 ctr" style="padding-top:calc(4*var(--u))">&#xE005;</div>
+      <div><div class="f8 acc" id="who">KEEPER</div><div class="say f16 ink" id="say" style="margin-top:calc(4*var(--u));line-height:calc(14*var(--u))"></div><div class="menu f16 lh14" id="choices" style="margin-top:calc(2*var(--u))"></div></div>
+    </div>
+  </section>
+  <!-- LOADING -->
+  <section class="scr" id="loading">
+    <div class="b ctr f16 ink" style="--x:0;--y:76;--w:320;--h:16" id="ltext">Saving</div>
+    <div class="b panel dim" style="--x:100;--y:100;--w:120;--h:6;padding:0"><div class="fill" id="lfill"></div></div>
+  </section>
+  <!-- QUIT -->
+  <section class="scr" id="quit">
+    <div class="b panel ctr" style="--x:90;--y:60;--w:140;--h:60">
+      <div class="f16 ink">Leave the gloam?</div>
+      <div class="menu f16 lh14" id="quitmenu" style="margin-top:calc(8*var(--u));display:flex;justify-content:center;gap:calc(16*var(--u))"></div>
+    </div>
+  </section>
+  <section class="scr" id="over">
+    <div class="b ctr lan f32 p-blood" style="--x:0;--y:64;--w:320;--h:32" data-pal="blood"><span class="lan">The lantern</span></div>
+    <div class="b ctr lan f32" style="--x:0;--y:96;--w:320;--h:32" data-pal="blood"><span class="lan">goes out</span></div>
+  </section>
+</div></div>
+<div class="tbtn touch" style="left:12px"><button data-k="ArrowUp">&#x2191;</button><button data-k="ArrowDown">&#x2193;</button><button data-k="ArrowLeft">&#x2190;</button><button data-k="ArrowRight">&#x2192;</button></div>
+<div class="tbtn touch" style="right:12px"><button data-k="Escape">B</button><button data-k="Enter">A</button></div>
+
+<script src="assets/dither.js"></script>
+<script>
+(() => {
+const D = window.Dither, $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const SW = 320, SH = 180, wrap = $('#wrap'), sc = $('#scene'), ui = $('#ui'), ctx = sc.getContext('2d');
+let S = 4;
+const PALS = ['ember', 'moss', 'frost', 'ghost', 'blood', 'bone'];
+const st = {pal: 'ember', dither: 3, font: 0, speed: 2, crt: true, sound: true, music: false};
+const MATS = ['none', 'b2', 'b4', 'b8'], MATN = ['OFF', '2×2', '4×4', '8×8'];
+const FONTS = [['Gloam', 'gloam'], ['Bone', 'bone'], ['Pico', 'pico']];
+try { Object.assign(st, JSON.parse(localStorage.getItem('gloam:menus') || '{}')); } catch (e) {}
+const save = () => { try { localStorage.setItem('gloam:menus', JSON.stringify(st)); } catch (e) {} };
+
+/* ------------- layout: integer scale, everything on the scene grid ------------- */
+function fit() {
+  S = Math.max(1, Math.floor(Math.min(innerWidth / SW, innerHeight / SH)));
+  if (innerWidth < SW || innerHeight < SH) S = Math.min(innerWidth / SW, innerHeight / SH);
+  const W = Math.round(SW * S), H = Math.round(SH * S);
+  wrap.style.left = Math.floor((innerWidth - W) / 2) + 'px'; wrap.style.top = Math.floor((innerHeight - H) / 2) + 'px';
+  sc.style.width = W + 'px'; sc.style.height = H + 'px';
+  ui.style.width = W + 'px'; ui.style.height = H + 'px'; ui.style.setProperty('--u', S + 'px');
+  $$('.panel').forEach(p => D.bg(p, .62, '#05040a', null, S));
+}
+addEventListener('resize', fit);
+
+/* ------------- the scene ------------- */
+const buf = new D.Buffer(SW, SH);
+let P = D.PALETTES.ember.map(D.u32), mx = 0;
+function applyPal() {
+  P = D.PALETTES[st.pal].map(D.u32);
+  document.documentElement.dataset.pal = st.pal;
+  D.setMatrix(MATS[st.dither]);
+  document.body.classList.toggle('crt', st.crt);
+  D.Sound.on = st.sound;
+  st.music && D.Sound.ctx ? D.Music.start() : D.Music.stop();
+}
+const ridge = (x, seed, amp, base, f) => base - amp * (.5 * Math.sin(x * f + seed) + .3 * Math.sin(x * f * 2.3 + seed * 1.7) + .2 * Math.sin(x * f * 5.1 + seed * .3));
+const h32 = (x, y) => { let h = x * 374761393 + y * 668265263; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967295; };
+// castle silhouette: [dx, width, height above ridge]
+const CASTLE = [[0, 6, 30], [6, 22, 18], [10, 4, 26], [28, 7, 38], [35, 18, 16], [53, 6, 28], [41, 3, 22]];
+const parts = Array.from({length: 70}, () => ({x: Math.random() * SW, y: Math.random() * SH, v: .2 + Math.random() * .6, p: Math.random() * 6}));
+const hiFar = new Float32Array(SW), hiMid = new Float32Array(SW), hiNear = new Float32Array(SW), castle = new Int16Array(SW);
+let dim = 0;
+function drawScene(t) {
+  const px = buf.px, n = 8, q = D.q;
+  const par = mx * 6;
+  for (let x = 0; x < SW; x++) {
+    hiFar[x] = ridge(x + t * 1.5 + par * .3, 1.3, 16, 112, .018);
+    hiMid[x] = ridge(x + t * 3.5 + par * .6, 4.1, 12, 134, .026);
+    const wn = x + t * 8 + par;
+    let nr = ridge(wn, 7.7, 8, 162, .045);
+    const tr = ((wn % 13) + 13) % 13, k = 6.5 - Math.abs(tr - 6.5);
+    nr -= Math.max(0, k * 2.2 - 3) * (h32(Math.floor(wn / 13), 1) > .3 ? 1 : 0);
+    hiNear[x] = nr;
+    const cx = Math.floor(x + t * 3.5 + par * .6) - 120, cxm = ((cx % 600) + 600) % 600;
+    castle[x] = 0;
+    for (const [dx, w, h] of CASTLE) if (cxm >= dx && cxm < dx + w) { let hh = h; if ((cxm - dx) % 3 === 0 && h > 20) hh += 2; castle[x] = Math.max(castle[x], hh); }
+  }
+  const mxp = 252, myp = 36;
+  for (let y = 0; y < SH; y++) {
+    for (let x = 0; x < SW; x++) {
+      let v;
+      const mist = Math.max(0, 1 - Math.abs(y - (126 + Math.sin(x * .03 + t * .6) * 4)) / 10) * .2 + Math.max(0, 1 - Math.abs(y - (104 + Math.sin(x * .02 - t * .4) * 3)) / 7) * .12;
+      if (y >= hiNear[x]) v = .04 + (y - hiNear[x]) * -.002;
+      else if (y >= hiMid[x] - castle[x]) {
+        const inC = y < hiMid[x];
+        v = .13 + mist * .8;
+        if (inC) { const cxw = Math.floor(x + t * 3.5 + mx * 3.6) - 120; if ((cxw % 5 === 2) && (y % 7 === 3) && h32(cxw, y) > .35) v = (Math.sin(t * 6 + cxw) > -.6) ? .97 : .7; }
+      }
+      else if (y >= hiFar[x]) v = .24 + mist - (y - hiFar[x]) * .003;
+      else {
+        v = .1 + (y / 112) * .46;
+        if (y < 92) v += Math.max(0, Math.sin(x * .035 + t * .45 + Math.sin(y * .09 + t * .7) * 1.4)) * Math.max(0, 1 - Math.abs(y - 34) / 34) * .22;
+        const md = Math.hypot(x - mxp, y - myp);
+        if (md < 13) v = Math.hypot(x - mxp + 5, y - myp + 3) < 11 ? .32 : .9 - h32(x, y) * .05;
+        else v += Math.max(0, 1 - md / 48) * .2;
+        if (h32(x, y) > .9965 && y < 100 && Math.sin(t * 3 + h32(y, x) * 60) > -.2) v = .98;
+        v += mist * .5;
+      }
+      px[y * SW + x] = P[q(v - dim, n, x, y)];
+    }
+  }
+  const warm = st.pal === 'ember' || st.pal === 'blood';
+  for (const p of parts) {
+    if (warm) { p.y -= p.v * .6; p.x += Math.sin(t * 2 + p.p) * .25; if (p.y < 60) { p.y = SH + 2; p.x = Math.random() * SW; } }
+    else { p.y += p.v * .5; p.x += Math.sin(t + p.p) * .3 - .1; if (p.y > SH) { p.y = -2; p.x = Math.random() * SW; } }
+    const X = Math.round(p.x), Y = Math.round(p.y);
+    if (X >= 0 && X < SW && Y >= 0 && Y < SH) { px[Y * SW + X] = P[7]; const ty = warm ? Y + 1 : Y - 1; if (ty >= 0 && ty < SH && (X + Y) % 2) px[ty * SW + X] = P[5]; }
+  }
+  buf.blit(ctx, SW, SH);
+}
+
+/* ------------- screens ------------- */
+let screen = 'title', busy = false;
+function show(id, pattern = 'bayer') {
+  if (busy) return Promise.resolve();
+  busy = true;
+  return D.transition({pattern, color: '#05040a', cell: Math.max(2, S), ms: 260, mid: () => { $$('.scr').forEach(s => s.classList.toggle('on', s.id === id)); screen = id; enter(id); }}).then(() => { busy = false; });
+}
+
+/* main menu */
+const MAIN = [
+  ['New Game', 'BEGIN', 'Climb the tower', 'The fog is early. Take the crooked nib and light the lamp.', () => startTalk()],
+  ['Continue', 'SLOT 1', 'Lantern Tower', 'Ilse, level 12. Three hours in the gloam.', () => startTalk()],
+  ['Options', 'SETTINGS', 'Tune the dark', 'Palette, dither matrix, text font, speed, scanlines, sound.', () => show('options', 'diamond')],
+  ['Saves', 'MEMORY', 'Three lanterns', 'Every slot keeps a portrait, in eight shades.', () => show('saves', 'blinds')],
+  ['Codex', 'GLYPHS', 'Nine hundred shapes', 'Browse the alphabet the nib can draw.', () => show('codex', 'sweep')],
+  ['Credits', 'ROLL', 'Who lit the lamp', 'The people and pixels behind Gloam.', () => show('credits', 'rain')],
+  ['Quit', 'LEAVE', 'Into the fog', 'The lantern will wait for you.', () => show('quit', 'iris')],
+];
+let mi = 0;
+function renderMain() {
+  $('#mainmenu').innerHTML = MAIN.map((m, i) => `<div class="it ${i === mi ? 'sel' : ''}" data-i="${i}">${m[0]}</div>`).join('');
+  $$('#mainmenu .it').forEach(el => { el.onmouseenter = () => { if (mi !== +el.dataset.i) { mi = +el.dataset.i; D.Sound.move(); renderMain(); } }; el.onclick = () => act(); });
+  const m = MAIN[mi]; $('#infoK').textContent = m[1]; $('#infoT').textContent = m[2]; $('#infoD').textContent = m[3];
+  $('#infoD').className = FONTS[st.font][1] + ' f16 dimc';
+}
+
+/* options */
+const OPTS = [
+  ['Palette', () => cap(st.pal), d => { st.pal = PALS[(PALS.indexOf(st.pal) + d + PALS.length) % PALS.length]; }],
+  ['Dither', () => `<span class="bar">${'▓'.repeat(st.dither * 2)}${'░'.repeat(6 - st.dither * 2)}</span> ${MATN[st.dither]}`, d => { st.dither = Math.max(0, Math.min(3, st.dither + d)); }],
+  ['Text font', () => `<span class="${FONTS[st.font][1]}">${FONTS[st.font][0]}</span>`, d => { st.font = (st.font + d + 3) % 3; }],
+  ['Text speed', () => `<span class="bar">${'▓'.repeat(st.speed * 2)}${'░'.repeat(6 - st.speed * 2)}</span>`, d => { st.speed = Math.max(1, Math.min(3, st.speed + d)); }],
+  ['Scanlines', () => st.crt ? 'On' : 'Off', () => { st.crt = !st.crt; }],
+  ['Sound', () => st.sound ? 'On' : 'Off', () => { st.sound = !st.sound; }],
+  ['Music', () => st.music ? 'On' : 'Off', () => { st.music = !st.music; }],
+  ['Back', () => '', null],
+];
+let oi = 0;
+const cap = s => s[0].toUpperCase() + s.slice(1);
+function renderOpts() {
+  $('#optmenu').innerHTML = OPTS.map((o, i) => o[2] ? `<div class="it opt ${i === oi ? 'sel' : ''}" data-i="${i}"><span>${o[0]}</span><span class="v"><span class="ar" data-d="-1">◀</span><span>${o[1]()}</span><span class="ar" data-d="1">▶</span></span></div>` : `<div class="it ${i === oi ? 'sel' : ''}" data-i="${i}">${o[0]}</div>`).join('');
+  $$('#optmenu .it').forEach(el => {
+    el.onmouseenter = () => { if (oi !== +el.dataset.i) { oi = +el.dataset.i; D.Sound.move(); renderOpts(); } };
+    el.onclick = e => { const d = e.target.dataset && e.target.dataset.d; if (OPTS[oi][2]) change(d ? +d : 1); else back(); };
+  });
+}
+function change(d) { const o = OPTS[oi]; if (!o[2]) return; o[2](d); applyPal(); save(); D.Sound.move(); renderOpts(); $$('.panel').forEach(p => D.bg(p, .62, '#05040a', null, S)); }
+
+/* saves */
+const SLOTS = [{n: 'Ilse', lv: 12, loc: 'Lantern Tower', time: '03:14:07', pct: 62, pal: 'ember'}, {n: 'Varjo', lv: 4, loc: 'Fog Market', time: '00:41:52', pct: 18, pal: 'frost'}, null];
+let si = 0;
+function portrait(cv, pal, t) {
+  const b = new D.Buffer(32, 32), Pp = D.PALETTES[pal].map(D.u32);
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+    let v = .12 + Math.max(0, 1 - Math.hypot(x - 16, y - 13) / 20) * .55;
+    const head = Math.hypot(x - 16, y - 13) < 7, body = y > 20 && Math.abs(x - 16) < 11 - (31 - y) * .25;
+    if (head) v = .62 - (x - 12) * .03; if (body) v = .38 - (x - 8) * .012;
+    if (head && (x === 14 || x === 18) && y === 13) v = .05;
+    px32(b, x, y, Pp[D.q(v, 8, x, y)]);
+  }
+  b.blit(cv.getContext('2d'), 32, 32);
+}
+function staticNoise(cv, t) { const b = new D.Buffer(32, 32); for (let i = 0; i < 1024; i++) b.px[i] = Math.random() > .5 ? D.u32('#3a3048') : D.u32('#120f18'); b.blit(cv.getContext('2d'), 32, 32); }
+const px32 = (b, x, y, c) => { b.px[y * 32 + x] = c; };
+function renderSlots() {
+  $('#slotbox').innerHTML = SLOTS.map((s, i) => `<div class="slot ${i === si ? 'sel' : ''}" data-i="${i}"><canvas width="32" height="32"></canvas>` + (s ?
+    `<div><div class="f16 ink">Slot ${i + 1} &middot; ${s.n} <span class="acc">Lv ${s.lv}</span></div><div class="f8 dimc" style="margin-top:calc(2*var(--u))">${s.loc.toUpperCase()} &middot; ${s.time} &middot; <span class="acc">${s.pct}%</span></div></div>`
+    : `<div><div class="f16 dimc">Slot ${i + 1} &middot; Empty</div><div class="f8 hint" style="margin-top:calc(3*var(--u))">NOTHING BUT FOG</div></div>`) + '</div>').join('');
+  $$('#slotbox .slot').forEach((el, i) => { const cv = el.querySelector('canvas'); SLOTS[i] ? portrait(cv, SLOTS[i].pal) : staticNoise(cv); el.onmouseenter = () => { if (si !== i) { si = i; D.Sound.move(); renderSlots(); } }; el.onclick = () => { if (SLOTS[i]) { D.Sound.ok(); startTalk(); } else { D.Sound.hurt(); } }; });
+}
+
+/* codex */
+const CDX = [...'AaBbGgKkMmQqRrSsWwÄäÖöÅå&@?!0123456789ß♥★♦♠♣☠⚔♪☾✦'];
+const NAMES = {'': 'KEY', '': 'POTION', '': 'COIN', '': 'SHIELD', '': 'SWORD', '': 'LANTERN', '♥': 'HEART', '★': 'STAR', '☠': 'SKULL', '⚔': 'SWORDS', '♪': 'NOTE', '☾': 'MOON', '✦': 'SPARK', '♦': 'DIAMOND', '♠': 'SPADE', '♣': 'CLUB', 'ß': 'SHARP S', '&': 'AMPERSAND', '@': 'AT'};
+let ci = 0; const seen = new Set();
+function renderCodex() {
+  $('#cdx').innerHTML = CDX.map((c, i) => `<span class="${i === ci ? 'sel' : ''}" data-i="${i}">${c}</span>`).join('');
+  $$('#cdx span').forEach(el => { el.onmouseenter = () => { ci = +el.dataset.i; D.Sound.move(); renderCodex(); }; });
+  const c = CDX[ci]; seen.add(c);
+  $('#cbig').textContent = c; $('#ccode').textContent = 'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+  $('#cname').textContent = NAMES[c] || (c.toUpperCase() === c ? 'CAPITAL' : 'SMALL') + (/[0-9]/.test(c) ? ' FIGURE' : '');
+  $('#cbone').textContent = c; $('#cmono').textContent = c; $('#cpico').textContent = c;
+  $('#cfound').textContent = `${seen.size} / ${CDX.length} SEEN`;
+}
+
+/* credits */
+const ROLL = [['f8 acc', 'GLOAM'], ['f16 ink', 'Quest for the Crooked Nib'], ['', ''], ['f8 dimc', 'TYPE DESIGN'], ['f16 ink', 'Tuomas Taini'], ['', ''], ['f8 dimc', 'TYPEFACES'], ['f16 ink', 'Gloam'], ['lan f16', 'Gloam Lantern'], ['bone f16 ink', 'Gloam Bone'], ['pico f16 ink', 'Gloam Pico'], ['', ''], ['f8 dimc', 'DITHER'], ['f16 ink', 'Bayer 8×8, by hand'], ['', ''], ['f8 dimc', 'MUSIC'], ['f16 ink', '32 square-wave notes'], ['', ''], ['f8 dimc', 'FOG'], ['f16 ink', 'Local'], ['', ''], ['', ''], ['lan f32', 'Thank you'], ['f8 acc', 'FOR PLAYING']];
+let rollY = 0;
+function renderCredits() { $('#roll').innerHTML = ROLL.map(([c, t]) => `<div class="${c}" style="min-height:calc(12*var(--u))">${t}</div>`).join(''); rollY = 0; }
+
+/* dialogue */
+const TALK = {
+  a: {t: 'The fog is early tonight. The letters are already restless.', n: 'b'},
+  b: {t: 'Take the crooked nib. Up-strokes thin, down-strokes thick. You know the rule.', c: [['Climb the tower', 'c'], ['Ask about the fog', 'd']]},
+  c: {t: 'You climb a hundred and twelve steps. The lamp catches. Every word in Gloamhollow sighs and goes home.', end: true},
+  d: {t: 'The fog keeps what it touches. Shapes, mostly. Sometimes whole sentences.', c: [['Climb the tower', 'c'], ['Ask again', 'e']]},
+  e: {t: 'Once it kept a whole umlaut for a week. We found it in the bakery.', c: [['Climb the tower', 'c']]},
+};
+let node = null, typing = 0, ch = 0, choices = [];
+function startTalk() { show('talk', 'iris').then(() => say('a')); }
+function say(k) {
+  node = TALK[k]; const el = $('#say'); el.className = 'say f16 ink ' + FONTS[st.font][1]; el.classList.add('typing'); $('#choices').innerHTML = ''; choices = [];
+  let i = 0; clearInterval(typing);
+  typing = setInterval(() => { i++; el.textContent = node.t.slice(0, i); if (i % 2 && node.t[i - 1] !== ' ') D.Sound.blip(520 + (i % 5) * 40, .02, 'square', .02); if (i >= node.t.length) { clearInterval(typing); typing = 0; el.classList.remove('typing'); if (node.c) { choices = node.c; ch = 0; renderChoices(); } } }, [0, 55, 32, 16][st.speed]);
+}
+function renderChoices() { $('#choices').innerHTML = choices.map((c, i) => `<div class="it ${i === ch ? 'sel' : ''}" data-i="${i}">${c[0]}</div>`).join(''); $$('#choices .it').forEach(el => { el.onmouseenter = () => { ch = +el.dataset.i; renderChoices(); }; el.onclick = () => talkOk(); }); }
+function talkOk() {
+  if (typing) { clearInterval(typing); typing = 0; $('#say').textContent = node.t; $('#say').classList.remove('typing'); if (node.c) { choices = node.c; ch = 0; renderChoices(); } return; }
+  if (choices.length) { D.Sound.ok(); say(choices[ch][1]); return; }
+  if (node.n) { D.Sound.move(); say(node.n); return; }
+  if (node.end) { D.Sound.coin(); loading(); }
+}
+function loading() {
+  show('loading', 'blinds').then(() => {
+    let p = 0; const f = $('#lfill');
+    const tick = setInterval(() => { p += 4 + Math.random() * 9; f.style.width = Math.min(100, p) + '%'; D.bg(f, Math.min(1, .3 + p / 140), getComputedStyle(document.documentElement).getPropertyValue('--acc').trim(), '#120f18', S); if (p >= 100) { clearInterval(tick); $('#ltext').textContent = 'Saved'; D.Sound.coin(); setTimeout(() => { $('#ltext').textContent = 'Saving'; show('main', 'diamond'); }, 600); } }, 70);
+  });
+}
+
+/* quit */
+let qi = 1;
+function renderQuit() { $('#quitmenu').innerHTML = ['Yes', 'No'].map((t, i) => `<div class="it ${i === qi ? 'sel' : ''}" data-i="${i}">${t}</div>`).join(''); $$('#quitmenu .it').forEach(el => { el.onmouseenter = () => { qi = +el.dataset.i; renderQuit(); }; el.onclick = () => quitOk(); }); }
+function quitOk() {
+  if (qi === 1) return back();
+  D.Sound.hurt(); D.Music.stop();
+  show('over', 'iris').then(() => { let k = 0; const fade = setInterval(() => { dim = Math.min(.5, (k++) * .02); if (k > 40) { clearInterval(fade); setTimeout(() => { dim = 0; applyPal(); show('title', 'rain'); }, 900); } }, 50); });
+}
+
+function enter(id) {
+  if (id === 'main') renderMain();
+  if (id === 'options') { oi = 0; renderOpts(); }
+  if (id === 'saves') renderSlots();
+  if (id === 'codex') renderCodex();
+  if (id === 'credits') renderCredits();
+  if (id === 'quit') { qi = 1; renderQuit(); }
+  $$('.panel').forEach(p => D.bg(p, .62, '#05040a', null, S));
+}
+function act() { D.Sound.ok(); MAIN[mi][4](); }
+function back() { if (screen === 'main' || screen === 'title') return; D.Sound.back(); if (screen === 'talk') { clearInterval(typing); } show('main', 'diamond'); }
+
+/* ------------- input ------------- */
+function key(k) {
+  D.Sound.ensure(); if (st.music) D.Music.start();
+  if (busy) return;
+  const up = k === 'ArrowUp' || k === 'w' || k === 'W', dn = k === 'ArrowDown' || k === 's' || k === 'S';
+  const lf = k === 'ArrowLeft' || k === 'a' || k === 'A', rt = k === 'ArrowRight' || k === 'd' || k === 'D';
+  const ok = k === 'Enter' || k === ' ' || k === 'z' || k === 'Z', no = k === 'Escape' || k === 'Backspace' || k === 'x' || k === 'X';
+  if (screen === 'title') { D.Sound.coin(); show('main', 'iris'); return; }
+  if (no) return back();
+  if (screen === 'main') { if (up || dn) { mi = (mi + (dn ? 1 : -1) + MAIN.length) % MAIN.length; D.Sound.move(); renderMain(); } if (ok || rt) act(); }
+  else if (screen === 'options') { if (up || dn) { oi = (oi + (dn ? 1 : -1) + OPTS.length) % OPTS.length; D.Sound.move(); renderOpts(); } if (lf || rt) change(lf ? -1 : 1); if (ok) OPTS[oi][2] ? change(1) : back(); }
+  else if (screen === 'saves') { if (up || dn) { si = (si + (dn ? 1 : -1) + 3) % 3; D.Sound.move(); renderSlots(); } if (ok) { if (SLOTS[si]) { D.Sound.ok(); startTalk(); } else D.Sound.hurt(); } }
+  else if (screen === 'codex') { const d = lf ? -1 : rt ? 1 : up ? -12 : dn ? 12 : 0; if (d) { ci = (ci + d + CDX.length) % CDX.length; D.Sound.move(); renderCodex(); } }
+  else if (screen === 'talk') { if (choices.length && (up || dn)) { ch = (ch + (dn ? 1 : -1) + choices.length) % choices.length; D.Sound.move(); renderChoices(); } if (ok) talkOk(); }
+  else if (screen === 'quit') { if (lf || rt) { qi = 1 - qi; D.Sound.move(); renderQuit(); } if (ok) quitOk(); }
+  else if (screen === 'credits' && ok) back();
+}
+addEventListener('keydown', e => { if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault(); key(e.key); });
+ui.addEventListener('click', () => { if (screen === 'title') key('Enter'); else if (screen === 'talk' && !choices.length) talkOk(); });
+$$('.tbtn button').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); key(b.dataset.k); }));
+addEventListener('pointermove', e => { mx = e.clientX / innerWidth - .5; });
+
+/* ------------- loop ------------- */
+let last = 0, pi = 0, lastPal = 0;
+function loop(now) {
+  const t = now / 1000;
+  if (now - last > 33) {
+    last = now; drawScene(t);
+    if (screen === 'title' && now - lastPal > 1600) { lastPal = now; pi = (pi + 1) % PALS.length; $('#logo').closest('.b').dataset.pal = PALS[pi]; }
+    if (screen === 'credits') { rollY += .35; $('#roll').style.transform = `translateY(${-Math.round(rollY) * S}px)`; if (rollY > 180 + ROLL.length * 12) { rollY = 0; } }
+    if (screen === 'saves') $$('#slotbox .slot').forEach((el, i) => { if (!SLOTS[i]) staticNoise(el.querySelector('canvas')); });
+  }
+  requestAnimationFrame(loop);
+}
+if (matchMedia('(hover: none)').matches) document.body.classList.add('is-touch');
+applyPal(); fit();
+document.fonts.ready.then(() => { fit(); requestAnimationFrame(loop); });
+})();
+</script>
+</body>
+</html>

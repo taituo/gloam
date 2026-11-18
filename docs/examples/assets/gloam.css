@@ -1,0 +1,50 @@
+/* Gloam example kit — fonts, palettes and pixel primitives shared by the example pages */
+@font-face{font-family:"Gloam";src:url(../fonts/Gloam-Regular.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Lantern";src:url(../fonts/GloamLantern-Regular.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone";src:url(../fonts/GloamBone-Regular.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone Narrow";src:url(../fonts/GloamBoneNarrow-Regular.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone Mono";src:url(../fonts/GloamBoneMono-Regular.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone Lantern";src:url(../fonts/GloamBoneLantern-Regular.woff2) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Pico";src:url(../fonts/GloamPico-Regular.woff2) format("woff2");font-display:block}
+
+@font-palette-values --ember{font-family:"Gloam Lantern";base-palette:0}
+@font-palette-values --moss{font-family:"Gloam Lantern";base-palette:1}
+@font-palette-values --frost{font-family:"Gloam Lantern";base-palette:2}
+@font-palette-values --ghost{font-family:"Gloam Lantern";base-palette:3}
+@font-palette-values --blood{font-family:"Gloam Lantern";base-palette:4}
+@font-palette-values --bone{font-family:"Gloam Lantern";base-palette:5}
+@font-palette-values --b-bone{font-family:"Gloam Bone Lantern";base-palette:0}
+@font-palette-values --b-ember{font-family:"Gloam Bone Lantern";base-palette:1}
+@font-palette-values --b-moss{font-family:"Gloam Bone Lantern";base-palette:2}
+@font-palette-values --b-frost{font-family:"Gloam Bone Lantern";base-palette:3}
+@font-palette-values --b-ghost{font-family:"Gloam Bone Lantern";base-palette:4}
+@font-palette-values --b-blood{font-family:"Gloam Bone Lantern";base-palette:5}
+
+:root{--bg:#0b0910;--ink:#ebe3cf;--dim:#8d849b;--faint:#4a4256;--line:#2a2335;--acc:#f2c23a;--hi:#fff1a8}
+[data-pal=ember]{--acc:#f2c23a;--hi:#fff1a8}
+[data-pal=moss]{--acc:#9fd14f;--hi:#e8ffb4}
+[data-pal=frost]{--acc:#6fbef0;--hi:#e4f7ff}
+[data-pal=ghost]{--acc:#c6b6f2;--hi:#ffffff}
+[data-pal=blood]{--acc:#e2453c;--hi:#ffc0a8}
+[data-pal=bone]{--acc:#e9dfc4;--hi:#ffffff}
+[data-pal=ember] .lan{font-palette:--ember}[data-pal=moss] .lan{font-palette:--moss}[data-pal=frost] .lan{font-palette:--frost}
+[data-pal=ghost] .lan{font-palette:--ghost}[data-pal=blood] .lan{font-palette:--blood}[data-pal=bone] .lan{font-palette:--bone}
+[data-pal=ember] .blan{font-palette:--b-ember}[data-pal=moss] .blan{font-palette:--b-moss}[data-pal=frost] .blan{font-palette:--b-frost}
+[data-pal=ghost] .blan{font-palette:--b-ghost}[data-pal=blood] .blan{font-palette:--b-blood}[data-pal=bone] .blan{font-palette:--b-bone}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink)}
+body{font:16px/24px "Gloam",monospace;-webkit-font-smoothing:none;-moz-osx-font-smoothing:unset;font-smooth:never;text-rendering:optimizeSpeed;overflow-x:hidden}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+.gloam{font-family:"Gloam",monospace}.lan{font-family:"Gloam Lantern","Gloam",monospace}
+.bone{font-family:"Gloam Bone",monospace}.bnar{font-family:"Gloam Bone Narrow",monospace}
+.bmono{font-family:"Gloam Bone Mono",monospace}.blan{font-family:"Gloam Bone Lantern","Gloam Bone",monospace}
+.pico{font-family:"Gloam Pico",monospace}
+.px{box-shadow:0 -4px 0 0 var(--line),0 4px 0 0 var(--line),-4px 0 0 0 var(--line),4px 0 0 0 var(--line);margin:4px}
+.blink{animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+.crt::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(to bottom,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.backlink{position:fixed;left:12px;top:10px;z-index:60;font:16px/16px "Gloam",monospace;color:var(--dim);text-decoration:none;padding:6px 10px;background:rgba(11,9,16,.8)}
+.backlink:hover{color:var(--acc)}

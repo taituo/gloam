@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" data-pal="ember">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gloam — the pitch, played as a game</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="assets/gloam.css">
+<style>
+html,body{height:100%;overflow:hidden;background:#05040a}
+#stage{position:fixed;left:0;top:0;--u:2px;overflow:hidden}
+#bg{position:absolute;inset:0;width:100%;height:100%}
+.sl{position:absolute;inset:0;display:none}
+.sl.on{display:block}
+.b{position:absolute;left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u));width:calc(var(--w)*var(--u))}
+.p8{font-family:"Gloam Pico";font-size:calc(8*var(--u));line-height:calc(8*var(--u))}
+.p16{font-family:"Gloam Pico";font-size:calc(16*var(--u));line-height:calc(16*var(--u))}
+.p32{font-family:"Gloam Pico";font-size:calc(32*var(--u));line-height:calc(32*var(--u))}
+.g16{font-size:calc(16*var(--u));line-height:calc(24*var(--u))}
+.g32{font-size:calc(32*var(--u));line-height:calc(40*var(--u))}
+.g48{font-size:calc(48*var(--u));line-height:calc(56*var(--u))}
+.g64{font-size:calc(64*var(--u));line-height:calc(72*var(--u))}
+.g96{font-size:calc(96*var(--u));line-height:calc(96*var(--u))}
+.g128{font-size:calc(128*var(--u));line-height:calc(128*var(--u))}
+.ctr{text-align:center}
+.ink{color:#ebe3cf}.dim{color:#8d849b}.faint{color:#4a4256}.acc{color:var(--acc)}.hi{color:var(--hi)}.red{color:#e2453c}.grn{color:#9fd14f}
+.frag{visibility:hidden}.frag.in{visibility:visible;animation:pop .24s steps(3)}
+@keyframes pop{0%{transform:translateY(calc(6*var(--u)))}100%{transform:none}}
+.panel{box-shadow:0 0 0 var(--u) var(--acc),0 0 0 calc(2*var(--u)) #05040a;padding:calc(10*var(--u)) calc(12*var(--u))}
+.panel.dimb{box-shadow:0 0 0 var(--u) #3a3048,0 0 0 calc(2*var(--u)) #05040a}
+/* HUD */
+#hud{position:absolute;left:0;right:0;top:0;height:calc(24*var(--u));display:flex;align-items:center;justify-content:space-between;padding:0 calc(14*var(--u));z-index:5}
+#hud .hearts{font-size:calc(16*var(--u));line-height:calc(16*var(--u));letter-spacing:calc(2*var(--u))}
+#foot{position:absolute;left:0;right:0;bottom:0;height:calc(20*var(--u));z-index:6;display:flex;align-items:center;justify-content:space-between;padding:0 calc(14*var(--u));z-index:5}
+#prog{font-family:"Gloam Bone Mono";font-size:calc(16*var(--u));line-height:calc(16*var(--u));color:var(--acc)}
+#prog span{color:#3a3048}
+/* slide parts */
+.enemy{display:flex;gap:calc(10*var(--u));align-items:baseline;margin-bottom:calc(10*var(--u))}
+.enemy .ic{font-family:"Gloam Lantern";color:#e2453c;flex:none}
+.cards{display:grid;grid-template-columns:repeat(4,calc(84*var(--u)));gap:calc(8*var(--u))}
+.card{height:calc(56*var(--u));padding:calc(6*var(--u)) calc(8*var(--u));box-shadow:0 0 0 var(--u) #3a3048;cursor:pointer}
+.card.sel{box-shadow:0 0 0 var(--u) var(--acc),0 0 0 calc(2*var(--u)) #05040a}
+.card .s{font-size:calc(32*var(--u));line-height:calc(32*var(--u))}
+.stat{display:grid;grid-template-columns:calc(56*var(--u)) 1fr;align-items:center;margin-bottom:calc(6*var(--u))}
+.stat i{display:block;height:calc(8*var(--u))}
+.bars .row{display:grid;grid-template-columns:calc(120*var(--u)) 1fr;align-items:center}
+.bars .bar{height:calc(10*var(--u));width:0;transition:width .7s steps(14)}
+.bars .bar2{height:calc(4*var(--u));width:0;transition:width .7s steps(14);margin-top:calc(2*var(--u))}
+.boss .sprite{transition:filter .3s steps(3)}
+.hp{height:calc(10*var(--u));box-shadow:0 0 0 var(--u) #ebe3cf;position:relative}
+.hp i{position:absolute;inset:0 auto 0 0;width:100%;transition:width .4s steps(8)}
+.node{position:absolute;transform:translate(-50%,-50%);text-align:center;white-space:nowrap}
+.node .dot{width:calc(8*var(--u));height:calc(8*var(--u));margin:0 auto calc(3*var(--u));background:#05040a;box-shadow:0 0 0 var(--u) var(--acc)}
+.node.done .dot{background:var(--acc)}
+.bubble{position:relative;padding:calc(14*var(--u)) calc(16*var(--u));background:#ebe3cf;color:#1a1420}
+.bubble::after{content:"";position:absolute;left:calc(-8*var(--u));top:calc(20*var(--u));border:calc(4*var(--u)) solid transparent;border-right-color:#ebe3cf;border-top-color:#ebe3cf}
+.pal-row{display:grid;grid-template-columns:calc(70*var(--u)) calc(90*var(--u)) 1fr;align-items:center;height:calc(36*var(--u))}
+.pal-row .sw{height:calc(16*var(--u))}
+#tap{position:fixed;inset:0;z-index:4}
+#foot a{pointer-events:auto}
+</style>
+</head>
+<body class="crt">
+<div id="stage">
+  <canvas id="bg"></canvas>
+  <div id="hud"><span class="p16 ink" id="world">WORLD 1-1</span><span class="p16 ink">SCORE <span class="acc" id="score">000000</span></span><span><span class="hearts lan p-blood" data-pal="blood"><span class="lan" id="hearts">♥♥♥</span></span> <span class="p16 ink" style="margin-left:calc(10*var(--u))">TIME <span id="time" class="acc">300</span></span></span></div>
+
+  <!-- 1 TITLE -->
+  <section class="sl" data-bg="sunset" data-w="WORLD 1-1">
+    <div class="b ctr p16 acc" style="--x:0;--y:78;--w:640">PLAYER ONE PRESENTS</div>
+    <div class="b ctr lan g128" style="--x:0;--y:100;--w:640">Gloam</div>
+    <div class="b ctr g16 ink" style="--x:0;--y:236;--w:640">a pixel typeface in seven cuts</div>
+    <div class="b ctr p16 hi blink" style="--x:0;--y:284;--w:640">PRESS &#x25B6; TO START</div>
+  </section>
+
+  <!-- 2 PROBLEM -->
+  <section class="sl" data-bg="night" data-w="WORLD 1-2">
+    <div class="b p16 acc" style="--x:56;--y:52;--w:520">STAGE: THE PROBLEM</div>
+    <div class="b g32 ink" style="--x:56;--y:70;--w:540">Most pixel fonts are just squares.</div>
+    <div class="b" style="--x:56;--y:136;--w:520">
+      <div class="enemy frag"><span class="ic g32">☠</span><div><div class="g16 ink">Generic</div><div class="bone g16 dim">Every curve is the same rounded box.</div></div></div>
+      <div class="enemy frag"><span class="ic g32">☠</span><div><div class="g16 ink">Blurry</div><div class="bone g16 dim">Set at the wrong size, the pixels smear.</div></div></div>
+      <div class="enemy frag"><span class="ic g32">☠</span><div><div class="g16 ink">Lonely</div><div class="bone g16 dim">One weight, no family, no colour.</div></div></div>
+    </div>
+  </section>
+
+  <!-- 3 NIB -->
+  <section class="sl" data-bg="cave" data-w="WORLD 2-1">
+    <div class="b p16 acc" style="--x:56;--y:52;--w:520">STAGE: THE NIB RULE</div>
+    <div class="b" style="--x:56;--y:84;--w:280;display:flex;gap:calc(16*var(--u));align-items:flex-end"><canvas id="nibA"></canvas><canvas id="nibO"></canvas></div>
+    <div class="b" style="--x:350;--y:84;--w:250">
+      <div class="lan g32">Up thin.</div><div class="lan g32">Down thick.</div>
+      <div class="bone g16 ink frag" style="margin-top:calc(14*var(--u))">Every pixel is laid as if by a broad nib held at 45&deg;. Strokes rising &#x2197; are one pixel. Strokes falling &#x2198; are two.</div>
+      <div class="p16 acc frag" style="margin-top:calc(12*var(--u))">&#x25A0; 2 PX FLAT &nbsp; <span class="hi">&#x25A0; 1 PX EDGE</span></div>
+    </div>
+  </section>
+
+  <!-- 4 FIGHTERS -->
+  <section class="sl" data-bg="void" data-w="WORLD 2-2">
+    <div class="b p16 acc" style="--x:40;--y:44;--w:560">CHOOSE YOUR FIGHTER</div>
+    <div class="b cards" style="--x:40;--y:64;--w:360" id="cards"></div>
+    <div class="b panel dimb" style="--x:418;--y:64;--w:182" id="fstats"></div>
+  </section>
+
+  <!-- 5 STATS -->
+  <section class="sl" data-bg="night" data-w="WORLD 3-1">
+    <div class="b p16 acc" style="--x:56;--y:48;--w:520">STAGE: STATS</div>
+    <div class="b g32 ink" style="--x:56;--y:64;--w:540">Ink in a&ndash;z, counted</div>
+    <div class="b bars" style="--x:56;--y:116;--w:528" id="bars"></div>
+    <div class="b p8 dim" style="--x:56;--y:312;--w:528">THICK BAR = PIXELS OF INK &nbsp;&middot;&nbsp; THIN BAR = WIDTH OF A&ndash;Z IN PX &nbsp;&middot;&nbsp; MEASURED FROM THE SOURCES</div>
+  </section>
+
+  <!-- 6 BOSS -->
+  <section class="sl boss" data-bg="blood" data-w="WORLD 3-2">
+    <div class="b p16 red" style="--x:56;--y:46;--w:520">!! BOSS FIGHT !!</div>
+    <div class="b" style="--x:56;--y:66;--w:250"><div class="g32 ink">Blurry Text</div><div class="hp" style="margin-top:calc(8*var(--u))"><i id="bosshp" style="background:#e2453c"></i></div><div class="p8 dim" style="margin-top:calc(6*var(--u))" id="bosslbl">HP 100 / 100</div></div>
+    <div class="b ctr sprite" style="--x:350;--y:56;--w:240"><div class="g128 ink" id="bossA" style="filter:blur(3px);transform:scale(1.07)">Aa</div></div>
+    <div class="b" style="--x:56;--y:150;--w:270">
+      <div class="frag atk"><span class="p16 acc">&#x2694; ATTACK 1</span><div class="bone g16 ink">Integer sizes: 16, 32, 48 px.</div></div>
+      <div class="frag atk" style="margin-top:calc(8*var(--u))"><span class="p16 acc">&#x2694; ATTACK 2</span><div class="bmono g16 ink">font-smoothing: none</div></div>
+      <div class="frag atk" style="margin-top:calc(8*var(--u))"><span class="p16 acc">&#x2694; ATTACK 3</span><div class="bmono g16 ink">image-rendering: pixelated</div></div>
+    </div>
+    <div class="b ctr lan g48 frag" style="--x:350;--y:224;--w:240" id="clear">Clear!</div>
+  </section>
+
+  <!-- 7 MAP -->
+  <section class="sl" data-bg="map" data-w="WORLD 4-1">
+    <div class="b p16 ink" style="--x:40;--y:40;--w:560"><span style="background:#05040a;padding:calc(3*var(--u)) calc(6*var(--u))">OVERWORLD: SEVEN CUTS</span></div>
+    <div id="nodes"></div>
+  </section>
+
+  <!-- 8 PALETTES -->
+  <section class="sl" data-bg="void" data-w="WORLD 4-2">
+    <div class="b p16 acc" style="--x:56;--y:42;--w:520">STAGE: SIX LANTERNS</div>
+    <div class="b" style="--x:56;--y:62;--w:540" id="palrows"></div>
+  </section>
+
+  <!-- 9 QUOTE -->
+  <section class="sl" data-bg="cave" data-w="WORLD 5-1">
+    <div class="b ctr lan g96" style="--x:60;--y:110;--w:120">&#xE005;</div>
+    <div class="b" style="--x:200;--y:100;--w:390"><div class="bubble"><div class="g32">&ldquo;Even the dots lean.&rdquo;</div><div class="p16" style="margin-top:calc(10*var(--u));color:#6b5a44">&mdash; THE LANTERN KEEPER</div></div></div>
+  </section>
+
+  <!-- 10 THANKS -->
+  <section class="sl" data-bg="sunset" data-w="WORLD 5-2">
+    <div class="b ctr lan g64" style="--x:0;--y:56;--w:640">Thanks for playing</div>
+    <div class="b ctr g16 ink" style="--x:0;--y:140;--w:640">Type design &middot; Tuomas Taini</div>
+    <div class="b ctr bmono g16 dim" style="--x:0;--y:166;--w:640">github.com/taituo/gloam</div>
+    <div class="b ctr" style="--x:0;--y:212;--w:640"><span class="p32 hi" id="cont" style="background:#05040a;padding:calc(6*var(--u)) calc(12*var(--u));display:inline-block">CONTINUE? 9</span></div>
+    <div class="b ctr" style="--x:0;--y:262;--w:640"><span class="p16 ink" id="cont2" style="background:#05040a;padding:calc(4*var(--u)) calc(8*var(--u));display:inline-block">&#x25C0; TO PLAY AGAIN</span></div>
+  </section>
+
+  <div id="foot"><span id="prog"></span><span class="p16 dim">&#x25C0; &#x25B6; &middot; P PALETTE &middot; M SOUND &middot; <a href="index.html" style="color:var(--acc);text-decoration:none;position:relative;z-index:6">EXIT</a></span></div>
+</div>
+<div id="tap"></div>
+
+<script src="assets/dither.js"></script>
+<script>
+(() => {
+const D = window.Dither, $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const W = 640, H = 360, stage = $('#stage'), bg = $('#bg'), bx = bg.getContext('2d');
+const slides = $$('.sl'), PALS = ['ember', 'moss', 'frost', 'ghost', 'blood', 'bone'];
+let S = 2, cur = 0, frag = 0, pal = 'ember', t0 = performance.now();
+D.Sound.on = true;
+
+/* ---------- layout ---------- */
+function fit() {
+  S = Math.floor(Math.min(innerWidth / W, innerHeight / H)); if (S < 1) S = Math.min(innerWidth / W, innerHeight / H);
+  const w = Math.round(W * S), h = Math.round(H * S);
+  Object.assign(stage.style, {width: w + 'px', height: h + 'px', left: Math.floor((innerWidth - w) / 2) + 'px', top: Math.floor((innerHeight - h) / 2) + 'px'});
+  stage.style.setProperty('--u', S + 'px');
+  $$('.panel').forEach(p => D.bg(p, .7, '#05040a', null, S));
+  drawNibs(); renderBars(true);
+}
+addEventListener('resize', fit);
+
+/* ---------- backgrounds (160 x 90, dithered) ---------- */
+const BW = 160, BH = 90, bb = new D.Buffer(BW, BH);
+const h32 = (x, y) => { let h = x * 374761393 + y * 668265263; h = (h ^ (h >> 13)) * 1274126177; return ((h ^ (h >> 16)) >>> 0) / 4294967295; };
+function vn(x, y) { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, s = t => t * t * (3 - 2 * t); const a = h32(xi, yi), b = h32(xi + 1, yi), c = h32(xi, yi + 1), d = h32(xi + 1, yi + 1); return a + (b - a) * s(xf) + (c - a) * s(yf) + (a - b - c + d) * s(xf) * s(yf); }
+const MAPP = ['#0f1d38', '#1a3156', '#2b5584', '#4a8ac0', '#d8c79c', '#5f8a2a', '#36571f', '#1f3a1a', '#524a39', '#857a5f', '#e9dfc4'].map(D.u32);
+function drawBg(kind, t) {
+  const P = D.PALETTES[kind === 'blood' ? 'blood' : pal].map(D.u32), px = bb.px;
+  for (let y = 0; y < BH; y++) for (let x = 0; x < BW; x++) {
+    let v;
+    if (kind === 'sunset') {
+      v = .12 + y / BH * .62 + Math.max(0, 1 - Math.hypot(x - 80, (y - 64) * 1.6) / 50) * .35;
+      const hz = 66 + Math.sin(x * .09) * 3 + Math.sin(x * .23 + 1) * 1.5;
+      if (y > hz) v = .08 + (y - hz) * .002;
+      if (y > 78) v = .03;
+      v += Math.sin(x * .05 + t * .3 + y * .2) * .04 * (y < 50);
+    } else if (kind === 'night') {
+      v = .06 + y / BH * .26;
+      if (h32(x, y) > .985 && Math.sin(t * 2 + h32(y, x) * 40) > 0) v = .9;
+      const hz = 76 + Math.sin(x * .07 + 2) * 4;
+      if (y > hz) v = .02;
+    } else if (kind === 'cave') {
+      const n = vn(x / 7, y / 7) * .6 + vn(x / 3, y / 3) * .4;
+      v = .05 + n * .16 + Math.max(0, 1 - Math.hypot(x - 30, y - 50) / 48) * .32 * (1 + Math.sin(t * 8) * .04);
+    } else if (kind === 'blood') {
+      v = .08 + Math.abs(Math.sin((x + y) * .12 + t * 1.5)) * .12 + y / BH * .18;
+    } else if (kind === 'map') {
+      const h = vn(x / 22 + 3, y / 22) * .65 + vn(x / 8, y / 8) * .28 + vn(x / 3, y / 3) * .07;
+      const k = Math.max(0, Math.min(.999, (h - .04) / .58)) * (MAPP.length - 1), i = k | 0;
+      const c = (k - i > D.thr(x, y)) ? i + 1 : i;
+      const wave = c < 2 && Math.sin(x * .5 + t * 2 + y * .7) > .985;
+      px[y * BW + x] = wave ? MAPP[3] : MAPP[Math.min(c, MAPP.length - 1)];
+      continue;
+    } else {
+      v = .07 + ((Math.floor(x / 8) + Math.floor(y / 8)) % 2) * .05 + Math.max(0, 1 - Math.hypot(x - 120, y - 30) / 70) * .15;
+    }
+    px[y * BW + x] = P[D.q(v, 8, x, y)];
+  }
+  if (kind === 'map') drawPath(t);
+  bb.blit(bx, BW, BH);
+}
+/* overworld path */
+const NODES = [['Gloam', 18, 70], ['Lantern', 40, 52], ['Bone', 66, 64], ['Narrow', 86, 44], ['Mono', 108, 58], ['Bone Lantern', 126, 34], ['Pico', 146, 50]];
+function drawPath(t) {
+  const px = bb.px, C = D.u32('#ebe3cf'), K = D.u32('#05040a');
+  for (let i = 0; i < NODES.length - 1; i++) {
+    const [, x0, y0] = NODES[i], [, x1, y1] = NODES[i + 1], n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let s = 0; s <= n; s++) { const x = Math.round(x0 + (x1 - x0) * s / n), y = Math.round(y0 + (y1 - y0) * s / n); if ((s + Math.floor(t * 6)) % 4 < 2) { px[y * BW + x] = C; if (y + 1 < BH) px[(y + 1) * BW + x] = K; } }
+  }
+}
+function renderNodes() {
+  const el = $('#nodes'); const prog = Math.min(NODES.length - 1, ((performance.now() - mapT) / 900) | 0);
+  el.innerHTML = NODES.map(([n, x, y], i) => `<div class="node ${i <= prog ? 'done' : ''}" style="left:calc(${x * 4}*var(--u));top:calc(${y * 4}*var(--u))"><div class="dot"></div><div class="p16 ${i <= prog ? 'ink' : 'dim'}" style="background:#05040a;padding:calc(2*var(--u)) calc(4*var(--u))">${n.toUpperCase()}</div></div>`).join('')
+    + (() => { const a = NODES[prog], b = NODES[Math.min(prog + 1, NODES.length - 1)], k = ((performance.now() - mapT) % 900) / 900; const x = a[1] + (b[1] - a[1]) * (prog < NODES.length - 1 ? k : 0), y = a[2] + (b[2] - a[2]) * (prog < NODES.length - 1 ? k : 0); return `<div class="node" style="left:calc(${Math.round(x * 4)}*var(--u));top:calc(${Math.round(y * 4) - 14}*var(--u))"><span class="lan g32">@</span></div>`; })();
+}
+let mapT = 0;
+
+/* ---------- nib canvases ---------- */
+const BM = {"o": ["001111", "010011", "110011", "110011", "110011", "110010", "111100"], "A": ["0001100", "0001100", "0010110", "0010110", "0010110", "0100011", "0111111", "1000011", "1000011", "1000011"]};
+function drawNib(cv, rows, P) {
+  const w = rows[0].length, h = rows.length, Su = Math.round(P * S);
+  cv.width = w * Su; cv.height = h * Su; cv.style.width = w * Su + 'px'; cv.style.height = h * Su + 'px';
+  const x = cv.getContext('2d'), acc = getComputedStyle(document.documentElement).getPropertyValue('--hi').trim();
+  rows.forEach((r, j) => [...r].forEach((c, i) => { if (c !== '1') { x.fillStyle = '#1a1622'; x.fillRect(i * Su + Su / 2 - 1, j * Su + Su / 2 - 1, 2, 2); return; } const thin = r[i - 1] !== '1' && r[i + 1] !== '1'; x.fillStyle = thin ? acc : '#ebe3cf'; x.fillRect(i * Su, j * Su, Su - Math.max(1, S), Su - Math.max(1, S)); }));
+}
+function drawNibs() { drawNib($('#nibA'), BM.A, 18); drawNib($('#nibO'), BM.o, 18); }
+
+/* ---------- fighters ---------- */
+const F = [
+  ['Gloam', 'gloam', [5, 4, 0, 3]], ['Lantern', 'lan', [5, 4, 5, 3]], ['Bone', 'bone', [2, 3, 0, 3]], ['Narrow', 'bnar', [2, 2, 0, 3]],
+  ['Mono', 'bmono', [2, 5, 0, 3]], ['B. Lantern', 'blan', [2, 3, 5, 3]], ['Pico', 'pico', [3, 1, 0, 1]]];
+let fi = 0, ft = 0;
+function renderFighters() {
+  $('#cards').innerHTML = F.map(([n, c], i) => `<div class="card ${i === fi ? 'sel' : ''}" data-i="${i}"><div class="s ${c} ${i === fi ? 'ink' : 'dim'}">Ag</div><div class="p8 ${i === fi ? 'acc' : 'faint'}" style="margin-top:calc(6*var(--u))">${n.toUpperCase()}</div></div>`).join('');
+  $$('#cards .card').forEach(el => el.onclick = e => { e.stopPropagation(); fi = +el.dataset.i; ft = performance.now() + 4000; D.Sound.move(); renderFighters(); });
+  const [n, c, s] = F[fi], acc = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim();
+  $('#fstats').innerHTML = `<div class="${c} g48 ink ctr">${c === 'pico' ? 'AG' : 'Ag'}</div><div class="g16 ink ctr" style="margin:calc(4*var(--u)) 0 calc(10*var(--u))">${n}</div>` +
+    [['WEIGHT', s[0]], ['WIDTH', s[1]], ['GLOW', s[2]], ['SIZE', s[3]]].map(([k, v]) => `<div class="stat"><span class="p8 dim">${k}</span><i data-v="${v}"></i></div>`).join('');
+  $$('#fstats i').forEach(i => D.bg(i, .15 + i.dataset.v / 5 * .85, acc, '#1a1622', S));
+  $$('.panel').forEach(p => D.bg(p, .7, '#05040a', null, S));
+}
+
+/* ---------- stats ---------- */
+const STATS = [['Gloam', 685, 176, 'gloam'], ['Bone', 426, 150, 'bone'], ['Bone Narrow', 404, 139, 'bnar'], ['Bone Mono', 426, 208, 'bmono'], ['Pico', 219, 104, 'pico']];
+function renderBars(resize) {
+  const acc = getComputedStyle(document.documentElement).getPropertyValue('--acc').trim();
+  if (!resize) $('#bars').innerHTML = STATS.map(([n, ink, w, c], i) => `<div class="row" style="margin-bottom:calc(12*var(--u))"><div><div class="${c} g16 ink" style="line-height:calc(16*var(--u))">${n}</div><div class="p8 dim" style="margin-top:calc(4*var(--u))">${ink} INK &middot; ${w} W</div></div><div><div class="bar" data-p="${ink / 700}"></div><div class="bar2" data-p="${w / 220}"></div></div></div>`).join('');
+  $$('#bars .bar').forEach((b, i) => D.bg(b, [.95, .7, .55, .4, .25][i], acc, '#1a1622', S));
+  $$('#bars .bar2').forEach(b => D.bg(b, .5, '#8d849b', null, S));
+}
+function growBars() { $$('#bars .bar, #bars .bar2').forEach(b => { b.style.width = '0'; requestAnimationFrame(() => requestAnimationFrame(() => { b.style.width = (b.dataset.p * 100) + '%'; })); }); }
+
+/* ---------- palettes ---------- */
+function renderPals() {
+  $('#palrows').innerHTML = PALS.map(p => `<div class="pal-row" data-pal="${p}"><span class="p16 dim">${p.toUpperCase()}</span><span class="lan g32">Glow</span><span class="sw" data-sw="${p}"></span></div>`).join('');
+  $$('[data-sw]').forEach(el => { const P = D.PALETTES[el.dataset.sw]; el.style.backgroundImage = P.slice(1).map((c, i) => `url(${D.tile(.5, c, P[i])})`).join(',');
+    el.style.backgroundSize = P.slice(1).map(() => `${8 * S}px ${8 * S}px`).join(','); el.style.backgroundRepeat = 'repeat-y'; el.style.backgroundPosition = P.slice(1).map((_, i) => `${i * 14 * S * 2}px 0`).join(','); el.style.imageRendering = 'pixelated'; el.style.width = 7 * 28 * S + 'px'; });
+}
+
+/* ---------- boss ---------- */
+function bossHit(n) {
+  const hp = Math.max(0, 100 - n * 34); $('#bosshp').style.width = hp + '%'; $('#bosslbl').textContent = `HP ${hp} / 100`;
+  const a = $('#bossA'); a.style.filter = hp > 0 ? `blur(${hp / 34}px)` : 'none'; a.style.transform = hp > 34 ? 'scale(1.07)' : 'none';
+  if (n) D.Sound.hurt();
+  if (hp === 0) { D.Sound.coin(); boom = performance.now(); }
+}
+let boom = 0;
+
+/* ---------- countdown ---------- */
+let cdT = 0, over = false;
+
+/* ---------- navigation ---------- */
+const PATTERNS = ['iris', 'blinds', 'diamond', 'sweep', 'rain', 'bayer'];
+let busy = false;
+function go(i) {
+  if (i < 0 || i >= slides.length || busy || i === cur) return;
+  busy = true; D.Sound.ok();
+  D.transition({pattern: PATTERNS[i % PATTERNS.length], color: '#05040a', cell: Math.max(2, Math.round(S * 2)), ms: 280, mid: () => { cur = i; frag = 0; show(); }}).then(() => busy = false);
+}
+function show() {
+  slides.forEach((s, k) => s.classList.toggle('on', k === cur));
+  const s = slides[cur];
+  s.querySelectorAll('.frag').forEach(f => f.classList.remove('in'));
+  $('#world').textContent = s.dataset.w;
+  $('#score').textContent = String((cur + 1) * 1000 + frag * 100).padStart(6, '0');
+  $('#prog').innerHTML = '▓'.repeat(cur + 1) + `<span>${'░'.repeat(slides.length - cur - 1)}</span>`;
+  $('#hearts').textContent = '♥'.repeat(3 - Math.floor(cur / 4)) + '♡'.repeat(Math.floor(cur / 4));
+  if (s.classList.contains('boss')) bossHit(0);
+  if (s.querySelector('#cards')) { fi = 0; renderFighters(); }
+  if (s.querySelector('#bars')) growBars();
+  if (s.querySelector('#nodes')) mapT = performance.now();
+  if (s.querySelector('#cont')) { cdT = performance.now(); over = false; $('#cont').style.color = ''; $('#cont2').textContent = '◀ TO PLAY AGAIN'; }
+  $$('.panel').forEach(p => D.bg(p, .7, '#05040a', null, S));
+}
+function next() {
+  const fr = [...slides[cur].querySelectorAll('.frag')];
+  if (frag < fr.length) { fr[frag].classList.add('in'); frag++; D.Sound.coin(); $('#score').textContent = String((cur + 1) * 1000 + frag * 100).padStart(6, '0'); if (slides[cur].classList.contains('boss')) bossHit(Math.min(3, frag)); return; }
+  if (cur === slides.length - 1) return;
+  go(cur + 1);
+}
+function prev() { if (cur === slides.length - 1 && over) { go(0); return; } go(cur - 1); }
+addEventListener('keydown', e => {
+  D.Sound.ensure();
+  if (['ArrowRight', ' ', 'PageDown', 'Enter'].includes(e.key)) { e.preventDefault(); next(); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); prev(); }
+  else if (e.key === 'Home') go(0); else if (e.key === 'End') go(slides.length - 1);
+  else if (e.key === 'p' || e.key === 'P') { pal = PALS[(PALS.indexOf(pal) + 1) % PALS.length]; document.documentElement.dataset.pal = pal; renderBars(true); if (slides[cur].querySelector('#cards')) renderFighters(); drawNibs(); D.Sound.move(); }
+  else if (e.key === 'm' || e.key === 'M') { D.Sound.on = !D.Sound.on; }
+  else if (e.key === 'f' || e.key === 'F') { try { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); } catch (err) {} }
+});
+$('#tap').addEventListener('click', e => { D.Sound.ensure(); (e.clientX < innerWidth / 3 ? prev : next)(); });
+let tx0 = null; addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; }, {passive: true});
+addEventListener('touchend', e => { if (tx0 == null) return; const dx = e.changedTouches[0].clientX - tx0; if (Math.abs(dx) > 40) (dx < 0 ? next : prev)(); tx0 = null; });
+
+/* ---------- loop ---------- */
+let last = 0;
+function loop(now) {
+  const t = now / 1000;
+  if (now - last > 50) {
+    last = now;
+    const s = slides[cur];
+    drawBg(s.dataset.bg, t);
+    const left = Math.max(0, 300 - Math.floor((now - t0) / 1000)); $('#time').textContent = String(left).padStart(3, '0');
+    if (s.querySelector('#nodes')) renderNodes();
+    if (s.querySelector('#cards') && now > ft) { ft = now + 1400; fi = (fi + 1) % F.length; renderFighters(); }
+    if (s.querySelector('#cont')) { const k = 9 - Math.floor((now - cdT) / 1000); if (k >= 0) $('#cont').textContent = 'CONTINUE? ' + k; else if (!over) { over = true; $('#cont').textContent = 'GAME OVER'; $('#cont').style.color = '#e2453c'; D.Sound.hurt(); } }
+    if (boom && now - boom < 1400 && s.classList.contains('boss')) {
+      const k = (now - boom) / 1400, px = bb.px, C = D.u32(getComputedStyle(document.documentElement).getPropertyValue('--hi').trim());
+      for (let i = 0; i < 120; i++) { const a = h32(i, 3) * 6.283, r = k * (20 + h32(i, 7) * 40); const x = Math.round(117 + Math.cos(a) * r), y = Math.round(36 + Math.sin(a) * r * .8 + k * k * 20); if (x >= 0 && x < BW && y >= 0 && y < BH && D.t8(x, y) > k) px[y * BW + x] = C; }
+      bb.blit(bx, BW, BH);
+    }
+  }
+  requestAnimationFrame(loop);
+}
+bg.width = BW; bg.height = BH;
+renderBars(); renderPals();
+document.fonts.ready.then(() => { fit(); show(); requestAnimationFrame(loop); });
+})();
+</script>
+</body>
+</html>
