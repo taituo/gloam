@@ -25,8 +25,8 @@ def category(c):
     return 'punct'
 
 
-def glyph_data():
-    G = build()
+def glyph_data(style='gloam'):
+    G = build(style)
     out = []
     for c in sorted(G, key=ord):
         g = G[c]
@@ -44,7 +44,7 @@ def glyph_data():
 def kit_zip():
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
-        for base, sub in (('fonts', ''), ('source', ''), ('source/glyphs', '')):
+        for base, sub in (('fonts', ''), ('source', ''), ('source/glyphs', ''), ('source/glyphs-bone', '')):
             d = os.path.join(ROOT, base)
             for fn in sorted(os.listdir(d)):
                 p = os.path.join(d, fn)
@@ -60,7 +60,12 @@ def kit_zip():
 def main():
     b64f = lambda fn: base64.b64encode(open(os.path.join(FONTS, fn), 'rb').read()).decode()
     t = open(os.path.join(ROOT, 'site', 'template.html'), encoding='utf-8').read()
-    t = t.replace('{{GLYPHS}}', json.dumps(glyph_data(), ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/'))
+    js = lambda st: json.dumps(glyph_data(st), ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    t = t.replace('{{GLYPHS}}', js('gloam')).replace('{{GLYPHS_BONE}}', js('bone'))
+    t = t.replace('{{GLYPHS_BNAR}}', js('bone-narrow')).replace('{{GLYPHS_BMONO}}', js('bone-mono'))
+    t = t.replace('{{BONE}}', b64f('GloamBone-Regular.woff2')).replace('{{BONEN}}', b64f('GloamBoneNarrow-Regular.woff2'))
+    t = t.replace('{{BONEM}}', b64f('GloamBoneMono-Regular.woff2')).replace('{{BONEL}}', b64f('GloamBoneLantern-Regular.woff2'))
+    t = t.replace('{{BTTF}}', b64f('GloamBone-Regular.ttf')).replace('{{BMTTF}}', b64f('GloamBoneMono-Regular.ttf'))
     t = t.replace('{{REG}}', b64f('Gloam-Regular.woff2')).replace('{{LAN}}', b64f('GloamLantern-Regular.woff2'))
     t = t.replace('{{ZIP}}', base64.b64encode(kit_zip()).decode())
     t = t.replace('{{TTF}}', b64f('Gloam-Regular.ttf')).replace('{{LTTF}}', b64f('GloamLantern-Regular.ttf'))

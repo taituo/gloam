@@ -7,6 +7,16 @@
 <style>
 @font-face{font-family:"Gloam";src:url(data:font/woff2;base64,{{REG}}) format("woff2");font-display:block}
 @font-face{font-family:"Gloam Lantern";src:url(data:font/woff2;base64,{{LAN}}) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone";src:url(data:font/woff2;base64,{{BONE}}) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone Narrow";src:url(data:font/woff2;base64,{{BONEN}}) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone Mono";src:url(data:font/woff2;base64,{{BONEM}}) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Bone Lantern";src:url(data:font/woff2;base64,{{BONEL}}) format("woff2");font-display:block}
+@font-palette-values --b-bone{font-family:"Gloam Bone Lantern";base-palette:0}
+@font-palette-values --b-ember{font-family:"Gloam Bone Lantern";base-palette:1}
+@font-palette-values --b-moss{font-family:"Gloam Bone Lantern";base-palette:2}
+@font-palette-values --b-frost{font-family:"Gloam Bone Lantern";base-palette:3}
+@font-palette-values --b-ghost{font-family:"Gloam Bone Lantern";base-palette:4}
+@font-palette-values --b-blood{font-family:"Gloam Bone Lantern";base-palette:5}
 @font-palette-values --ember{font-family:"Gloam Lantern";base-palette:0}
 @font-palette-values --moss{font-family:"Gloam Lantern";base-palette:1}
 @font-palette-values --frost{font-family:"Gloam Lantern";base-palette:2}
@@ -32,6 +42,14 @@ html[data-pal=frost] .lan{font-palette:--frost}
 html[data-pal=ghost] .lan{font-palette:--ghost}
 html[data-pal=blood] .lan{font-palette:--blood}
 html[data-pal=bone] .lan{font-palette:--bone}
+html[data-pal=ember] .blan{font-palette:--b-ember}
+html[data-pal=moss] .blan{font-palette:--b-moss}
+html[data-pal=frost] .blan{font-palette:--b-frost}
+html[data-pal=ghost] .blan{font-palette:--b-ghost}
+html[data-pal=blood] .blan{font-palette:--b-blood}
+html[data-pal=bone] .blan{font-palette:--b-bone}
+.bone{font-family:"Gloam Bone",monospace}.bnar{font-family:"Gloam Bone Narrow",monospace}.bmono{font-family:"Gloam Bone Mono",monospace}
+.blan{font-family:"Gloam Bone Lantern","Gloam Bone",monospace}
 .lan.p-blood{font-palette:--blood!important}
 .lan.p-ember{font-palette:--ember!important}
 
@@ -113,6 +131,18 @@ h2{font-weight:normal;font-size:64px;line-height:80px}
 .feat h3{font-weight:normal;font-size:32px;line-height:48px;margin-top:8px}
 .feat p{color:var(--dim);margin-top:4px}
 
+/* bone */
+.cuts{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px}
+.cut{padding:24px 28px;overflow:hidden}
+.cut .nm{color:var(--acc)}.cut .nm span{color:var(--faint);margin-left:12px}
+.cut .w{font-size:96px;line-height:112px;white-space:nowrap;margin-top:8px}
+.cut .t{font-size:32px;line-height:40px;color:var(--dim);margin-top:4px}
+.bonepair{display:grid;grid-template-columns:auto auto 1fr;gap:32px;align-items:center;margin-top:48px}
+.bonepair canvas{image-rendering:pixelated;display:block}
+.bonepair p{color:var(--dim);max-width:420px}.bonepair p b{color:var(--ink);font-weight:normal}
+.term{margin-top:24px;padding:24px;overflow:auto}
+.term pre{font:32px/32px "Gloam Bone Mono",monospace;color:var(--ink);margin:0;white-space:pre}
+.term pre .a{color:var(--acc)}.term pre .d{color:var(--faint)}.term pre .r{color:#e2453c}.term pre .g{color:#9fd14f}
 /* tester */
 .ctrl{display:flex;flex-wrap:wrap;gap:24px;align-items:center;margin-top:40px}
 .ctrl .grp{display:flex;gap:6px;align-items:center}
@@ -128,6 +158,7 @@ h2{font-weight:normal;font-size:64px;line-height:80px}
 .gwrap{display:grid;grid-template-columns:1fr 352px;gap:32px;margin-top:24px;align-items:start}
 .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:4px}
 .ggrid button{height:64px;font-size:32px;line-height:32px;background:var(--panel);color:var(--faint);position:relative}
+.ggrid.bone button{font-family:"Gloam Bone"}.ggrid.bnar button{font-family:"Gloam Bone Narrow"}.ggrid.bmono button{font-family:"Gloam Bone Mono"}
 .ggrid button.found{color:var(--ink)}
 .ggrid button.found::after{content:"";position:absolute;right:6px;top:6px;width:4px;height:4px;background:var(--acc)}
 .ggrid button:hover,.ggrid button.sel{background:var(--line);color:var(--acc)}
@@ -135,6 +166,7 @@ h2{font-weight:normal;font-size:64px;line-height:80px}
 .loupe canvas{display:block;margin:0 auto;image-rendering:pixelated}
 .loupe .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin-top:20px;color:var(--dim)}
 .loupe .meta b{color:var(--ink);font-weight:normal}
+.lstyles{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;justify-content:center}
 .loupe .nm{font-size:32px;line-height:48px;margin-top:16px;color:var(--acc);word-break:break-all}
 
 /* languages */
@@ -199,6 +231,8 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   nav{display:none}
   .nib-grid{grid-template-columns:repeat(3,1fr)}
   .feat{grid-template-columns:1fr 1fr}
+  .cuts{grid-template-columns:1fr}
+  .bonepair{grid-template-columns:auto auto;}.bonepair p{grid-column:1/-1}
   .play,.get{grid-template-columns:1fr}
   .gwrap{grid-template-columns:1fr}
   .loupe{position:static;order:-1}
@@ -214,6 +248,8 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   .lede{font-size:16px;line-height:24px}
   .nib-grid{grid-template-columns:1fr 1fr}
   .feat{grid-template-columns:1fr}
+  .cut .w{font-size:64px;line-height:80px}.cut .t{font-size:16px;line-height:24px}
+  .term pre{font-size:16px;line-height:16px}
   .langs div{grid-template-columns:1fr;gap:0}
   .langs p{font-size:16px;line-height:24px}
   .map{font-size:16px;line-height:16px}.map .r{height:16px}.map .c{width:8px}
@@ -226,7 +262,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
 <body>
 <header class="bar"><div class="wrap in">
   <a class="mark lan" href="#hero">Gloam</a>
-  <nav><a href="#nib">Nib</a><a href="#tester">Tester</a><a href="#glyphs">Glyphs</a><a href="#play">In play</a><a href="#get">Get it</a></nav>
+  <nav><a href="#nib">Nib</a><a href="#bone">Bone</a><a href="#tester">Tester</a><a href="#glyphs">Glyphs</a><a href="#play">In play</a><a href="#get">Get it</a></nav>
   <div class="lit" title="Glyphs you have found with the lantern"><span class="lbl">Lit</span> <b id="litN">0</b>/<span id="litT">0</span><div class="meter"><i id="litBar"></i></div></div>
   <div class="pals" role="group" aria-label="Lantern palette" id="pals"></div>
 </div></header>
@@ -240,7 +276,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
     <div class="ctas"><a class="btn" href="#get">&#x2193; Get the fonts</a><a class="btn ghost" href="#tester">Try it</a></div>
   </div>
   <div class="hero-hint">Move your lantern through the dark &mdash; every glyph it touches is <b>lit</b>.</div>
-  <div class="hero-ver">v1.000 &middot; 357 glyphs</div>
+  <div class="hero-ver">v1.100 &middot; 6 families</div>
   <div class="toast px" id="toast"></div>
 </section>
 
@@ -259,19 +295,33 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   <h2>Built for the screen it lives on</h2>
   <div class="feat">
     <div class="px"><div class="big">357</div><h3>glyphs</h3><p>Latin-1 and the core of Extended-A: Finnish, Nordic, German, French, Polish, Czech, Turkish, Romanian, Hungarian, Icelandic.</p></div>
-    <div class="px"><div class="big lan">Aa</div><h3>Two families</h3><p>Gloam is the clean outline. Gloam Lantern is a colour font &mdash; shadow, halo, fill and a highlight on every top edge.</p></div>
+    <div class="px"><div class="big"><span class="lan">A</span><span class="bone">a</span><span class="blan">a</span></div><h3>Six families</h3><p>Gloam and its 1-px skeleton, Bone, in Regular, Narrow and Mono. Plus Lantern colour versions of both: shadow, halo, fill and a highlight on every top edge.</p></div>
     <div class="px"><div class="big" id="palDots"></div><h3>Six palettes</h3><p>Ember, Moss, Frost, Ghost, Blood, Bone &mdash; baked into the font. Switch with one line of CSS: <span class="acc">font-palette</span>.</p></div>
     <div class="px"><div class="big">16&times;</div><h3>Pixel-true</h3><p>1 px = 100 units on a 1600 UPM grid. Set it at 16, 32, 48, 64&hellip; and every edge lands on a real pixel.</p></div>
     <div class="px"><div class="big">&#x2554;&#x2550;&#x2557;</div><h3>UI-ready</h3><p>41 box-drawing, block and shade glyphs on a strict 8&times;16 cell, plus arrows, cursors, suits and six game icons.</p></div>
-    <div class="px"><div class="big">.ttf</div><h3>TTF &middot; OTF &middot; WOFF2</h3><p>Desktop, web and engine. Sources ship as plain ASCII bitmaps, so you can redraw a glyph in a text editor.</p></div>
+    <div class="px"><div class="big bmono">.ttf</div><h3>TTF &middot; OTF &middot; WOFF2</h3><p>Desktop, web and engine. Sources ship as plain ASCII bitmaps, so you can redraw a glyph in a text editor.</p></div>
   </div>
+</section>
+
+<section class="blk" id="bone">
+  <div class="kicker">Gloam Bone</div>
+  <h2 class="bone">The skinny cut</h2>
+  <p class="lede">Strip the flesh and keep the bones. Every stroke is <em>one pixel</em>, but the nib still decides the shape: bowls still lean, branches still rise on the thin diagonal, and dots are still ticks.</p>
+  <div class="bonepair" id="bonepair"></div>
+  <div class="cuts">
+    <div class="cut px"><div class="nm">Gloam Bone <span>Regular</span></div><div class="w bone">Bonelight</div><div class="t bone">Quiet ink for long dialogue.</div></div>
+    <div class="cut px"><div class="nm">Gloam Bone Narrow <span>one counter column less</span></div><div class="w bnar">Bonelight</div><div class="t bnar">Fits more words in a narrow HUD.</div></div>
+    <div class="cut px"><div class="nm">Gloam Bone Mono <span>8 &times; 16 px cells</span></div><div class="w bmono">Bonelight</div><div class="t bmono">Lines up with every box glyph.</div></div>
+    <div class="cut px"><div class="nm">Gloam Bone Lantern <span>colour, bone palette by default</span></div><div class="w blan">Bonelight</div><div class="t blan">A halo for thin strokes.</div></div>
+  </div>
+  <div class="term px"><pre id="term"></pre></div>
 </section>
 
 <section class="blk" id="tester">
   <div class="kicker">Type tester</div>
   <h2>Write something in the dark</h2>
   <div class="ctrl">
-    <div class="grp"><span class="lbl">Family</span><button class="chip" data-fam="Gloam" aria-pressed="true">Gloam</button><button class="chip" data-fam="lan" aria-pressed="false">Lantern</button></div>
+    <div class="grp"><span class="lbl">Family</span><button class="chip" data-fam="Gloam" aria-pressed="true">Gloam</button><button class="chip" data-fam="lan" aria-pressed="false">Lantern</button><button class="chip" data-fam="bone" aria-pressed="false">Bone</button><button class="chip" data-fam="bnar" aria-pressed="false">Narrow</button><button class="chip" data-fam="bmono" aria-pressed="false">Mono</button><button class="chip" data-fam="blan" aria-pressed="false">Bone Lantern</button></div>
     <div class="grp" id="sizes"><span class="lbl">Size</span></div>
     <div class="grp"><span class="lbl">Ink</span><button class="chip" data-ink="ink" aria-pressed="true">Bone</button><button class="chip" data-ink="acc" aria-pressed="false">Palette</button></div>
   </div>
@@ -287,6 +337,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   <div class="gwrap">
     <div class="ggrid" id="ggrid"></div>
     <div class="loupe px">
+      <div class="lstyles" id="lstyles"></div>
       <canvas id="lc"></canvas>
       <div class="nm" id="lname"></div>
       <div class="meta" id="lmeta"></div>
@@ -332,12 +383,14 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   <h2>Take a lantern with you</h2>
   <div class="get">
     <div class="px">
-      <div class="s32">Gloam v1.000</div>
-      <p class="dim">Both families in TTF, OTF and WOFF2, the ASCII glyph sources, the build script and a README.</p>
+      <div class="s32">Gloam v1.100</div>
+      <p class="dim">All six families in TTF and WOFF2 (plus OTF for the outline ones), the ASCII glyph sources, the build scripts and a README.</p>
       <div class="dl" id="dl">
-        <button class="btn" data-file="zip">&#x2193; Gloam-1.000.zip</button>
+        <button class="btn" data-file="zip">&#x2193; Gloam-1.100.zip</button>
         <button class="btn ghost" data-file="reg">&#x2193; Gloam-Regular.ttf</button>
         <button class="btn ghost" data-file="lan">&#x2193; GloamLantern-Regular.ttf</button>
+        <button class="btn ghost bone" data-file="bone">&#x2193; GloamBone-Regular.ttf</button>
+        <button class="btn ghost bmono" data-file="bmono">&#x2193; GloamBoneMono-Regular.ttf</button>
       </div>
       <p class="note" id="dlnote"></p>
       <div class="code" id="css"><b>@font-face</b> { font-family: "Gloam";
@@ -348,16 +401,18 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   font-family: "Gloam Lantern"; base-palette: 2; }
 
 h1   { font: 64px/1 "Gloam Lantern"; font-palette: --frost; }
-body { font: 16px/24px "Gloam"; }</div>
+body { font: 16px/24px "Gloam Bone"; }
+pre  { font: 16px/1 "Gloam Bone Mono"; }</div>
       <div style="margin-top:12px"><button class="chip" id="copy">Copy CSS</button></div>
     </div>
     <div class="px">
       <div class="s32">Details</div>
       <div class="spec">
         <span>Designer</span><div>Tuomas Taini</div>
-        <span>Version</span><div>1.000 &middot; 2026</div>
-        <span>Families</span><div>Gloam, Gloam Lantern (COLRv0 + CPAL)</div>
+        <span>Version</span><div>1.100 &middot; 2026</div>
+        <span>Families</span><div>Gloam &middot; Gloam Lantern &middot; Gloam Bone &middot; Bone Narrow &middot; Bone Mono &middot; Bone Lantern</div>
         <span>Glyphs</span><div>357 per family</div>
+        <span>Bone Mono</span><div>every glyph 8 px wide, the same cell as the box glyphs</div>
         <span>Grid</span><div>UPM 1600 &middot; 1 px = 100 units</div>
         <span>Vertical</span><div>x 7 &middot; cap 10 &middot; asc 13 &middot; desc 3 px</div>
         <span>Best sizes</span><div>16, 32, 48, 64, 96 px</div>
@@ -374,14 +429,21 @@ body { font: 16px/24px "Gloam"; }</div>
 <footer><div class="wrap in"><span class="lan s32">Gloam</span><span>Designed by Tuomas Taini &middot; drawn pixel by pixel on a 45&deg; nib &middot; set entirely in itself &middot; <a href="https://github.com/taituo/gloam">github.com/taituo/gloam</a></span></div></footer>
 
 <script id="gdata" type="application/json">{{GLYPHS}}</script>
+<script id="gdata-bone" type="application/json">{{GLYPHS_BONE}}</script>
+<script id="gdata-bnar" type="application/json">{{GLYPHS_BNAR}}</script>
+<script id="gdata-bmono" type="application/json">{{GLYPHS_BMONO}}</script>
 <script id="f-zip" type="application/octet-stream">{{ZIP}}</script>
 <script id="f-reg" type="application/octet-stream">{{TTF}}</script>
 <script id="f-lan" type="application/octet-stream">{{LTTF}}</script>
+<script id="f-bone" type="application/octet-stream">{{BTTF}}</script>
+<script id="f-bmono" type="application/octet-stream">{{BMTTF}}</script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const GD=JSON.parse($('#gdata').textContent);           // [char,name,adv,x0,ytop,rows[],cat]
 const BY=new Map(GD.map(g=>[g[0],g]));
+const STY={gloam:BY,bone:new Map(JSON.parse($('#gdata-bone').textContent).map(g=>[g[0],g])),bnar:new Map(JSON.parse($('#gdata-bnar').textContent).map(g=>[g[0],g])),bmono:new Map(JSON.parse($('#gdata-bmono').textContent).map(g=>[g[0],g]))};
+let lsty='gloam';
 const COLLECT=GD.filter(g=>g[0]!==' '&&g[0]!==' '&&g[5].length).map(g=>g[0]);
 const PALS={ember:['#f2c23a','#fff1a8'],moss:['#9fd14f','#e8ffb4'],frost:['#6fbef0','#e4f7ff'],ghost:['#c6b6f2','#ffffff'],blood:['#e2453c','#ffc0a8'],bone:['#e9dfc4','#ffffff']};
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -457,9 +519,9 @@ hero.addEventListener('pointerleave',()=>{lastMove=0});
 window.addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(layout,150)});
 
 /* ---------- pixel drawing helpers ---------- */
-function bitmapOf(c){const g=BY.get(c);return g?{rows:g[5],x0:g[3],ytop:g[4],adv:g[2]}:null}
+function bitmapOf(c,st){const g=(STY[st]||BY).get(c);return g?{rows:g[5],x0:g[3],ytop:g[4],adv:g[2]}:null}
 function drawBitmap(cv,c,opt={}){
-  const b=bitmapOf(c);if(!b)return;
+  const b=bitmapOf(c,opt.style);if(!b)return;
   const P=opt.px||12, top=opt.top??13, bot=opt.bot??-4, pad=opt.pad??1;
   const minx=Math.min(0,b.x0)-pad, maxx=Math.max(b.adv,b.x0+(b.rows[0]||'').length)+pad;
   const cols=opt.cols||(maxx-minx), rows=top-bot;
@@ -492,12 +554,13 @@ const SZ=[16,32,48,64,96,128];let fam='Gloam',ink='ink',size=48;
 SZ.forEach(s=>{const b=document.createElement('button');b.className='chip';b.textContent=s;b.dataset.s=s;b.setAttribute('aria-pressed',s===size);b.onclick=()=>{size=s;applyT()};$('#sizes').appendChild(b)});
 $$('[data-fam]').forEach(b=>b.onclick=()=>{fam=b.dataset.fam;applyT()});
 $$('[data-ink]').forEach(b=>b.onclick=()=>{ink=b.dataset.ink;applyT()});
-function applyT(){const t=$('#tt');t.className='tester px s'+size+(fam==='lan'?' lan':'');t.style.color=ink==='acc'?'var(--acc)':'';
+const FCLS=f=>f==='Gloam'?'':f;
+function applyT(){const t=$('#tt');t.className='tester px s'+size+' '+FCLS(fam);t.style.color=ink==='acc'?'var(--acc)':'';
   $$('#sizes .chip').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.s===size));
   $$('[data-fam]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fam===fam));
   $$('[data-ink]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ink===ink));
   fall()}
-function fall(){const txt=$('#tt').textContent||' ';$('#fall').innerHTML=[16,32,48,64].map(s=>`<div class="${fam==='lan'?'lan':''}" style="font-size:${s}px;line-height:${s+8}px;${ink==='acc'?'color:var(--acc)':''}"><small>${s}</small><span></span></div>`).join('');
+function fall(){const txt=$('#tt').textContent||' ';$('#fall').innerHTML=[16,32,48,64].map(s=>`<div class="${FCLS(fam)}" style="font-size:${s}px;line-height:${s+8}px;${ink==='acc'?'color:var(--acc)':''}"><small>${s}</small><span></span></div>`).join('');
   $$('#fall span').forEach(s=>s.textContent=txt)}
 $('#tt').addEventListener('input',fall);
 $('#tt').addEventListener('input',()=>{for(const ch of $('#tt').textContent)light(ch)});
@@ -512,12 +575,14 @@ function renderGrid(){$$('#gtabs .chip').forEach(b=>b.setAttribute('aria-pressed
     if(lit.has(x[0]))b.classList.add('found');if(x[0]===sel)b.classList.add('sel');
     b.onclick=()=>{sel=x[0];$$('#ggrid .sel').forEach(e=>e.classList.remove('sel'));b.classList.add('sel');light(x[0]);drawLoupe()};
     gridCells.set(x[0],b);g.appendChild(b)})}
-function drawLoupe(){const g=BY.get(sel);if(!g)return;const narrow=window.innerWidth<640;
-  drawBitmap($('#lc'),sel,{px:narrow?14:16,top:13,bot:-4,guides:true,cols:18});
+function drawLoupe(){const g=(STY[lsty]||BY).get(sel);if(!g)return;const narrow=window.innerWidth<640;
+  drawBitmap($('#lc'),sel,{px:narrow?14:16,top:13,bot:-4,guides:true,cols:18,style:lsty});
+  $('#ggrid').className='ggrid '+(lsty==='gloam'?'':lsty);
   $('#lname').textContent=g[1];
   const cp=sel.codePointAt(0).toString(16).toUpperCase().padStart(4,'0');
   const ink=g[5].join('').split('').filter(v=>v==='1').length;
   $('#lmeta').innerHTML=`<span>Glyph</span><b class="s32" style="line-height:32px">${sel.replace('<','&lt;')}</b><span>Code</span><b>U+${cp}</b><span>Advance</span><b>${g[2]} px</b><span>Ink</span><b>${ink} pixels</b><span>Lit</span><b>${lit.has(sel)?'yes':'not yet'}</b>`}
+[['gloam','Gloam'],['bone','Bone'],['bnar','Narrow'],['bmono','Mono']].forEach(([k,l])=>{const b=document.createElement('button');b.className='chip';b.textContent=l;b.dataset.k=k;b.onclick=()=>{lsty=k;$$('#lstyles .chip').forEach(x=>x.setAttribute('aria-pressed',x.dataset.k===lsty));drawLoupe()};b.setAttribute('aria-pressed',k===lsty);$('#lstyles').appendChild(b)});
 $('#rnd').onclick=()=>{const pool=GD.filter(x=>x[5].length&&x[0]!==' ');sel=pool[Math.floor(Math.random()*pool.length)][0];cat='all';renderGrid();light(sel);drawLoupe();const c=gridCells.get(sel);if(c)c.scrollIntoView({block:'nearest'})};
 
 /* ---------- languages ---------- */
@@ -599,7 +664,7 @@ function mark(){$$('#opts button').forEach((b,i)=>b.classList.toggle('on',i===op
 
 /* ---------- downloads ---------- */
 function b64(id){const s=atob($(id).textContent.trim());const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
-const FILES={zip:['#f-zip','Gloam-1.000.zip'],reg:['#f-reg','Gloam-Regular.ttf'],lan:['#f-lan','GloamLantern-Regular.ttf']};
+const FILES={zip:['#f-zip','Gloam-1.100.zip'],reg:['#f-reg','Gloam-Regular.ttf'],lan:['#f-lan','GloamLantern-Regular.ttf'],bone:['#f-bone','GloamBone-Regular.ttf'],bmono:['#f-bmono','GloamBoneMono-Regular.ttf']};
 let dlns=null;
 $$('#dl button').forEach(b=>b.onclick=async()=>{const [id,name]=FILES[b.dataset.file];
   if(!dlns){try{const url=URL.createObjectURL(new Blob([b64(id)]));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);$('#dlnote').textContent='Downloading '+name+'…'}catch(e){$('#dlnote').textContent='Download failed in this browser.'}return}
@@ -608,13 +673,30 @@ $$('#dl button').forEach(b=>b.onclick=async()=>{const [id,name]=FILES[b.dataset.
 if(window.claude&&window.claude.use){window.claude.use('downloads').then(d=>{dlns=d}).catch(()=>{})}
 $('#copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#css').textContent);$('#copy').textContent='Copied'}catch(e){$('#copy').textContent='Select & copy'}setTimeout(()=>$('#copy').textContent='Copy CSS',1600)};
 
+/* ---------- Bone ---------- */
+function drawBonePair(){const box=$('#bonepair');if(!box.children.length){box.innerHTML='<canvas></canvas><canvas></canvas><p><b>Same skeleton, drawn by hand.</b> Bone is not Gloam run through a thinning filter. Each 2-px stroke becomes the 1-px line the edge of the nib would leave, so the counters open up and the stress stays where the pen put it.</p>'}
+  const cv=box.querySelectorAll('canvas');const P=window.innerWidth<640?9:13;
+  drawBitmap(cv[0],'g',{px:P,top:8,bot:-4,thin:true,pad:1,style:'gloam'});drawBitmap(cv[1],'g',{px:P,top:8,bot:-4,pad:1,style:'bone'})}
+function drawTerm(){
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const seg=(parts,w)=>{let len=0,h='';for(const [t,c] of parts){len+=[...t].length;h+=c?`<span class="${c}">${esc(t)}</span>`:esc(t)}return h+' '.repeat(Math.max(0,w-len))};
+  const L=[], D='═';
+  L.push('<span class="d">╔'+D.repeat(34)+'╗</span>');
+  L.push('<span class="d">║</span> '+seg([['INVENTORY','a'],['           '],['♥♥♥','r'],['♡ ','d'],[' ','a'],['042']],32)+' <span class="d">║</span>');
+  L.push('<span class="d">╠'+D.repeat(10)+'╦'+D.repeat(23)+'╣</span>');
+  const rows=[['','sword','Bone-hilt blade','+3','g'],['','shield','Lantern-glass ward','+2','g'],['','potion','Tastes of fog','x3',''],['','key','Opens the low door','',''],['','lamp','Never goes out','★','a']];
+  for(const [i,n,d,b,bc] of rows)L.push('<span class="d">║</span> '+seg([[i,'a'],[' '+n]],8)+' <span class="d">║</span> '+seg([[d],[' '.repeat(Math.max(1,21-[...d].length-[...b].length))],[b,bc]],21)+' <span class="d">║</span>');
+  L.push('<span class="d">╚'+D.repeat(10)+'╩'+D.repeat(23)+'╝</span>');
+  L.push(' HP <span class="r">'+'▓'.repeat(6)+'</span><span class="d">'+'░'.repeat(4)+'</span>  MP <span class="a">'+'▒'.repeat(4)+'</span><span class="d">'+'░'.repeat(6)+'</span>  LV 07');
+  $('#term').innerHTML=L.join('\n')}
+
 /* ---------- boot ---------- */
-Promise.all([document.fonts.load('32px Gloam'),document.fonts.load('32px "Gloam Lantern"')]).catch(()=>{}).then(()=>{
+Promise.all(['Gloam','"Gloam Lantern"','"Gloam Bone"','"Gloam Bone Narrow"','"Gloam Bone Mono"','"Gloam Bone Lantern"'].map(f=>document.fonts.load('32px '+f))).catch(()=>{}).then(()=>{
   setPal(store.get('pal','ember'));
   $('#litN').textContent=lit.size;$('#litBar').style.width=(lit.size/COLLECT.length*100)+'%';
   layout();requestAnimationFrame(frame);
-  applyT();renderGrid();drawLoupe();reset();talk('start');
-  window.addEventListener('resize',()=>{drawLoupe()});
+  applyT();renderGrid();drawLoupe();reset();talk('start');drawBonePair();drawTerm();
+  window.addEventListener('resize',()=>{drawLoupe();drawBonePair()});
 });
 })();
 </script>

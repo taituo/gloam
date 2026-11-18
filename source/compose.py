@@ -3,6 +3,7 @@ import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from glyphs import load_all, pixels, advance
+from widths import narrow_glyph, monospace
 
 # accent marks (top row first)
 ACC = {
@@ -55,11 +56,25 @@ class Glyph:
         return max((x for x, _ in self.px), default=-1)
 
 
-def build():
-    src = load_all()
+STYLES = {
+    # style: (source dirs, stem width of light box lines, transform)
+    'gloam':       (('glyphs',), 2, None),
+    'bone':        (('glyphs', 'glyphs-bone'), 1, None),
+    'bone-narrow': (('glyphs', 'glyphs-bone'), 1, 'narrow'),
+    'bone-mono':   (('glyphs', 'glyphs-bone'), 1, 'mono'),
+}
+
+
+def build(style='gloam'):
+    dirs, stem, transform = STYLES[style]
+    src = load_all(dirs)
     G = {}
     for ch, g in src.items():
         G[ch] = Glyph(pixels(g), advance(g))
+    if transform == 'narrow':
+        for ch, g in G.items():
+            if ch.isalnum():
+                narrow_glyph(g)
 
     def top_y(base):
         return max(y for _, y in G[base].px)
@@ -143,11 +158,13 @@ def build():
     def vline(s, x, y0, y1):
         s |= {(x, y) for y in range(y0, y1 + 1)}
 
+    VX = (3, 4) if stem == 2 else (3,)
+
     def light(arms):
         s = set()
-        if 'L' in arms: hline(s, MID, 0, 4)
+        if 'L' in arms: hline(s, MID, 0, VX[-1])
         if 'R' in arms: hline(s, MID, 3, 7)
-        for x in (3, 4):
+        for x in VX:
             if 'U' in arms: vline(s, x, MID, Y1)
             if 'D' in arms: vline(s, x, Y0, MID)
         return s
@@ -163,6 +180,8 @@ def build():
                               (0x256E, 'LD', [(3, 4), (4, 4), (4, 3)], [(2, 4)]),
                               (0x256F, 'LU', [(3, 4), (4, 4), (4, 5)], [(2, 4)]),
                               (0x2570, 'RU', [(3, 4), (4, 4), (3, 5)], [(5, 4)])):
+        if stem == 1:
+            cut = [(3, 4)]
         s = light(arms) - set(cut)
         box[cp] = s
 
@@ -197,7 +216,9 @@ def build():
     for cp, s in box.items():
         G[chr(cp)] = Glyph(s, 8)
 
-    G[' '] = Glyph(set(), G[' '].adv)
+    G['\u00a0'] = Glyph(set(), G[' '].adv)
+    if transform == 'mono':
+        monospace(G, box.keys())
     return G
 
 
@@ -213,5 +234,5 @@ KERN = [
 ]
 
 if __name__ == '__main__':
-    G = build()
-    print(len(G), 'glyphs')
+    for st in STYLES:
+        print(st, len(build(st)), 'glyphs')

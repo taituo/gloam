@@ -1,6 +1,6 @@
 """Render pixel-exact proofs of Gloam straight from the glyph sources.
 
-    python3 source/proof.py out.png "first line" "second line" [--scale 4] [--lantern ember]
+    python3 source/proof.py out.png "first line" "second line" [--scale 4] [--lantern ember] [--style bone]
 
 --lantern draws the Gloam Lantern layer stack (shadow, halo, fill, highlight)
 with one of the six palettes: ember moss frost ghost blood bone.
@@ -45,8 +45,8 @@ def layout(G, lines, extra_adv=0, gap=2):
     return ink, width, line_h * len(lines)
 
 
-def render(lines, scale=4, fg='#ebe3cf', bg='#0b0910', pad=6, lantern=None):
-    G = build()
+def render(lines, scale=4, fg='#ebe3cf', bg='#0b0910', pad=6, lantern=None, style='gloam'):
+    G = build(style)
     ink, w, h = layout(G, lines, extra_adv=1 if lantern else 0)
     W, H = w + pad * 2, h + pad * 2
     img = Image.new('RGB', (W, H), rgb(bg))
@@ -72,5 +72,6 @@ if __name__ == '__main__':
     ap.add_argument('--lantern', choices=sorted(PALETTES))
     ap.add_argument('--fg', default='#ebe3cf')
     ap.add_argument('--bg', default='#0b0910')
+    ap.add_argument('--style', default='gloam', choices=['gloam', 'bone', 'bone-narrow', 'bone-mono'])
     a = ap.parse_args()
-    render(a.lines, a.scale, a.fg, a.bg, lantern=a.lantern).save(a.out)
+    render(a.lines, a.scale, a.fg, a.bg, lantern=a.lantern, style=a.style).save(a.out)

@@ -1,7 +1,7 @@
 """Parse Gloam glyph source files: blocks of '@ <name> <desc> [adv_adj] [lsb]' + bitmap rows."""
 import os, re
 
-HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'glyphs')
+SRC = os.path.dirname(os.path.abspath(__file__))
 
 NAMED = {'space': ' ', 'at': '@', 'hash': '#', 'dot': '.'}
 
@@ -36,11 +36,14 @@ def parse(path):
     return glyphs
 
 
-def load_all():
+def load_all(dirs=('glyphs',)):
+    """Load glyph sources; later directories override earlier ones."""
     out = {}
-    for fn in sorted(os.listdir(HERE)):
-        if fn.endswith('.txt'):
-            out.update(parse(os.path.join(HERE, fn)))
+    for d in dirs:
+        path = os.path.join(SRC, d)
+        for fn in sorted(os.listdir(path)):
+            if fn.endswith('.txt'):
+                out.update(parse(os.path.join(path, fn)))
     return out
 
 

@@ -15,11 +15,16 @@ from compose import build, KERN
 
 PX = 100
 UPM = 1600
-VERSION = '1.000'
+VERSION = '1.100'
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
 os.makedirs(OUT, exist_ok=True)
 
-G = build()
+G = None
+
+
+def use(style):
+    global G
+    G = build(style)
 
 
 def gname(ch):
@@ -148,7 +153,7 @@ NAMES = lambda fam, style, ps: {
 }
 
 
-def build_regular(cff=False):
+def build_regular(family='Gloam', ps='Gloam-Regular', cff=False, mono=False):
     chars = order()
     names = ['.notdef'] + [gname(c) for c in chars]
     cmap = {ord(c): gname(c) for c in chars}
@@ -168,7 +173,7 @@ def build_regular(cff=False):
             pen = T2CharStringPen(adv[n], None)
             recs[n].replay(pen)  # CFF: counter-clockwise outers
             cs[n] = pen.getCharString()
-        fb.setupCFF('Gloam-Regular', {'FullName': 'Gloam', 'Notice': 'Copyright 2026 Tuomas Taini.'}, cs, {})
+        fb.setupCFF(ps, {'FullName': family, 'Notice': 'Copyright 2026 Tuomas Taini.', 'isFixedPitch': int(mono)}, cs, {})
     else:
         fb.setupGlyf({n: tt_glyph(recs[n]) for n in names})
     lsb = {}
@@ -177,19 +182,20 @@ def build_regular(cff=False):
         lsb[n] = min(xs) if xs else 0
     fb.setupHorizontalMetrics({n: (adv[n], lsb[n]) for n in names})
     fb.setupHorizontalHeader(ascent=1300, descent=-300, lineGap=0)
-    fb.setupNameTable(NAMES('Gloam', 'Regular', 'Gloam-Regular'))
+    fb.setupNameTable(NAMES(family, 'Regular', ps))
     fb.setupOS2(sTypoAscender=1300, sTypoDescender=-300, sTypoLineGap=0,
                 usWinAscent=1300, usWinDescent=300, sxHeight=700, sCapHeight=1000,
                 version=4, achVendID='TTAI', fsType=0, usWeightClass=400,
                 fsSelection=0x40 | 0x80)
-    fb.setupPost(isFixedPitch=0, underlinePosition=-150, underlineThickness=100)
+    fb.setupPost(isFixedPitch=int(mono), underlinePosition=-150, underlineThickness=100)
     font = fb.font
     if not cff:
         from fontTools.ttLib import newTable
         gasp = newTable('gasp')
         gasp.gaspRange = {0xFFFF: 0x000A}  # grid-fit + symmetric smoothing, no AA artefacts on aligned sizes
         font['gasp'] = gasp
-    addOpenTypeFeaturesFromString(font, kern_fea())
+    if not mono:
+        addOpenTypeFeaturesFromString(font, kern_fea())
     return font
 
 
@@ -218,7 +224,7 @@ def highlight(px):
     return {(x, y) for x, y in px if (x, y + 1) not in px}
 
 
-def build_lantern():
+def build_lantern(family='Gloam Lantern', ps='GloamLantern-Regular', first='Ember'):
     from fontTools.colorLib.builder import buildCOLR, buildCPAL
     chars = order()
     base_names = ['.notdef'] + [gname(c) for c in chars]
@@ -265,7 +271,7 @@ def build_lantern():
         lsb[n] = min(xs) if xs else 0
     fb.setupHorizontalMetrics({n: (adv[n], lsb[n]) for n in names})
     fb.setupHorizontalHeader(ascent=1400, descent=-400, lineGap=0)
-    fb.setupNameTable(NAMES('Gloam Lantern', 'Regular', 'GloamLantern-Regular'))
+    fb.setupNameTable(NAMES(family, 'Regular', ps))
     fb.setupOS2(sTypoAscender=1400, sTypoDescender=-400, sTypoLineGap=0,
                 usWinAscent=1500, usWinDescent=500, sxHeight=700, sCapHeight=1000,
                 version=4, achVendID='TTAI', fsType=0, fsSelection=0x40 | 0x80)
@@ -275,24 +281,43 @@ def build_lantern():
     def hex2rgba(h):
         h = h.lstrip('#')
         return (int(h[0:2], 16) / 255, int(h[2:4], 16) / 255, int(h[4:6], 16) / 255, 1.0)
-    font['CPAL'] = buildCPAL([[hex2rgba(c) for c in pal] for _, pal in PALETTES])
+    pals = sorted(PALETTES, key=lambda p: p[0] != first)  # chosen palette becomes the default (index 0)
+    font['CPAL'] = buildCPAL([[hex2rgba(c) for c in pal] for _, pal in pals])
     font['COLR'] = buildCOLR(layers, version=0)
     # kerning in lantern too
     addOpenTypeFeaturesFromString(font, kern_fea())
     return font
 
 
+FAMILIES = [
+    # style, family, PostScript name, kind
+    ('gloam',       'Gloam',              'Gloam-Regular',            'outline'),
+    ('gloam',       'Gloam Lantern',      'GloamLantern-Regular',     'lantern:Ember'),
+    ('bone',        'Gloam Bone',         'GloamBone-Regular',        'outline'),
+    ('bone-narrow', 'Gloam Bone Narrow',  'GloamBoneNarrow-Regular',  'outline'),
+    ('bone-mono',   'Gloam Bone Mono',    'GloamBoneMono-Regular',    'fixed'),
+    ('bone',        'Gloam Bone Lantern', 'GloamBoneLantern-Regular', 'lantern:Bone'),
+]
+
+
+def main():
+    for style, family, ps, kind in FAMILIES:
+        use(style)
+        out = []
+        if kind.startswith('lantern'):
+            build_lantern(family, ps, kind.split(':')[1]).save(f'{OUT}/{ps}.ttf')
+            out.append(f'{ps}.ttf')
+        else:
+            mono = kind == 'fixed'
+            build_regular(family, ps, mono=mono).save(f'{OUT}/{ps}.ttf')
+            build_regular(family, ps, cff=True, mono=mono).save(f'{OUT}/{ps}.otf')
+            out += [f'{ps}.ttf', f'{ps}.otf']
+        w = TTFont(f'{OUT}/{ps}.ttf')
+        w.flavor = 'woff2'
+        w.save(f'{OUT}/{ps}.woff2')
+        out.append(f'{ps}.woff2')
+        print(f'{family:20s}', len(G), 'chars  ', ' '.join(out))
+
+
 if __name__ == '__main__':
-    ttf = build_regular()
-    ttf.save(f'{OUT}/Gloam-Regular.ttf')
-    otf = build_regular(cff=True)
-    otf.save(f'{OUT}/Gloam-Regular.otf')
-    lan = build_lantern()
-    lan.save(f'{OUT}/GloamLantern-Regular.ttf')
-    for fn in ('Gloam-Regular.ttf', 'GloamLantern-Regular.ttf'):
-        f = TTFont(f'{OUT}/{fn}')
-        f.flavor = 'woff2'
-        f.save(f'{OUT}/{fn[:-4]}.woff2')
-    for fn in sorted(os.listdir(OUT)):
-        print(fn, os.path.getsize(f'{OUT}/{fn}'))
-    print('glyphs', len(ttf.getGlyphOrder()))
+    main()

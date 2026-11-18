@@ -23,19 +23,36 @@ Gloam pretends every pixel was laid by a broad pen held at 45°. Strokes that tr
 
 | Family | What it is | Files |
 |---|---|---|
-| **Gloam** | Monochrome outlines | `Gloam-Regular.ttf` · `.otf` · `.woff2` |
-| **Gloam Lantern** | COLRv0 colour font: shadow, halo, fill and a highlight on every top edge. Six CPAL palettes. | `GloamLantern-Regular.ttf` · `.woff2` |
+| **Gloam** | The full-weight face: 2 px stems, 1 px hairlines | `Gloam-Regular.ttf` · `.otf` · `.woff2` |
+| **Gloam Lantern** | Colour version of Gloam (COLRv0) with a shadow, halo, fill and a highlight on every top edge. Six CPAL palettes, Ember by default. | `GloamLantern-Regular.ttf` · `.woff2` |
+| **Gloam Bone** | The skinny cut: every stroke is 1 px, drawn by hand on the same grid | `GloamBone-Regular.ttf` · `.otf` · `.woff2` |
+| **Gloam Bone Narrow** | Bone with one counter column removed: about 17 % narrower | `GloamBoneNarrow-Regular.ttf` · `.otf` · `.woff2` |
+| **Gloam Bone Mono** | Bone in 8 × 16 px cells, the same cell as the box-drawing glyphs | `GloamBoneMono-Regular.ttf` · `.otf` · `.woff2` |
+| **Gloam Bone Lantern** | Colour version of Bone, bone palette by default | `GloamBoneLantern-Regular.ttf` · `.woff2` |
 
 ![Lantern palettes](images/palettes.png)
 
-Palette indices: `0` Ember · `1` Moss · `2` Frost · `3` Ghost · `4` Blood · `5` Bone.
+Gloam Lantern palette indices: `0` Ember · `1` Moss · `2` Frost · `3` Ghost · `4` Blood · `5` Bone.
+Gloam Bone Lantern palette indices: `0` Bone · `1` Ember · `2` Moss · `3` Frost · `4` Ghost · `5` Blood.
+
+## Gloam Bone
+
+![Gloam Bone styles](images/bone.png)
+
+Bone strips Gloam down to one pixel but keeps the nib. Bowls still thin out at NW and SE, branches still rise on the ↗ hairline, ascenders still start with a flick, and dots are still diagonal ticks. Bone is drawn by hand, not produced by a thinning filter. The Narrow and Mono widths are derived from it by code (`source/widths.py`). That code only removes a column when doing so keeps every stroke connected, every counter open, no two strokes touching, and no stroke end cut off.
+
+![Gloam Bone character set](images/bone-alphabet.png)
+
+Every Bone Mono glyph is 8 px wide, so text and box drawing share one grid:
+
+![Gloam Bone Mono terminal](images/bone-mono-terminal.png)
 
 ## Character set
 
-357 glyphs per family:
+357 glyphs in every family:
 
 - Basic Latin and Latin-1, plus the core of Latin Extended-A. This covers Finnish, Swedish, Danish, Norwegian, Icelandic, German, French, Spanish, Polish, Czech, Turkish, Romanian and Hungarian.
-- 41 box-drawing, block and shade glyphs on a strict 8 × 16 px cell (single, double and rounded lines, plus `░▒▓█`).
+- 41 box-drawing, block and shade glyphs on a strict 8 × 16 px cell (single, double and rounded lines, plus `░▒▓█`). Single lines are 2 px wide in Gloam and 1 px in Bone.
 - Arrows, cursors (`▲▼▶◀`), card suits, `♥♡★☆☠⚔♪☾✦`.
 - Six game icons in the Private Use Area: `U+E000` key · `U+E001` potion · `U+E002` coin · `U+E003` shield · `U+E004` sword · `U+E005` lantern.
 
@@ -58,11 +75,14 @@ Because the line is exactly 1 em, `line-height: 1` keeps box-drawing joined vert
 ```css
 @font-face { font-family: "Gloam";         src: url(fonts/Gloam-Regular.woff2) format("woff2"); }
 @font-face { font-family: "Gloam Lantern"; src: url(fonts/GloamLantern-Regular.woff2) format("woff2"); }
+@font-face { font-family: "Gloam Bone";      src: url(fonts/GloamBone-Regular.woff2) format("woff2"); }
+@font-face { font-family: "Gloam Bone Mono"; src: url(fonts/GloamBoneMono-Regular.woff2) format("woff2"); }
 
 @font-palette-values --frost { font-family: "Gloam Lantern"; base-palette: 2; }
 
 h1   { font: 64px/1 "Gloam Lantern"; font-palette: --frost; }
-body { font: 16px/24px "Gloam"; -webkit-font-smoothing: none; }
+body { font: 16px/24px "Gloam Bone"; -webkit-font-smoothing: none; }
+pre  { font: 16px/1 "Gloam Bone Mono"; }   /* line-height 1 keeps box drawing joined */
 ```
 
 ![In play](images/in-play.png)
@@ -71,9 +91,11 @@ body { font: 16px/24px "Gloam"; -webkit-font-smoothing: none; }
 
 ```
 fonts/            built fonts (TTF, OTF, WOFF2)
-source/glyphs/    every glyph as an ASCII bitmap: lower, upper, figures, extra
-source/compose.py accents, box drawing, blocks, kerning
-source/build.py   bitmaps → TTF / OTF / WOFF2, plus the COLR/CPAL Lantern font
+source/glyphs/      every Gloam glyph as an ASCII bitmap: lower, upper, figures, extra
+source/glyphs-bone/ the 1 px Bone redraws (anything not redrawn is shared with Gloam)
+source/compose.py   accents, box drawing, blocks, kerning, per-style setup
+source/widths.py    Bone Narrow and Bone Mono width transforms
+source/build.py     bitmaps → TTF / OTF / WOFF2 for all six families, plus COLR/CPAL
 source/proof.py   pixel-exact PNG proofs, optionally with the Lantern layers
 site/             specimen page template and builder
 docs/index.html   built specimen (GitHub Pages)
@@ -105,6 +127,7 @@ pip install fonttools skia-pathops brotli pillow
 python3 source/build.py            # writes fonts/
 python3 site/build_site.py         # writes docs/index.html
 python3 source/proof.py proof.png "Hyvää yötä" --scale 6 --lantern ember
+python3 source/proof.py bone.png "Hyvää yötä" --style bone   # bone | bone-narrow | bone-mono
 ```
 
 ## License
