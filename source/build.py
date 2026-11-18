@@ -15,7 +15,7 @@ from compose import build, KERN
 
 PX = 100
 UPM = 1600
-VERSION = '1.100'
+VERSION = '1.200'
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fonts')
 os.makedirs(OUT, exist_ok=True)
 

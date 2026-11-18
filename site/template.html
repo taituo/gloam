@@ -11,6 +11,7 @@
 @font-face{font-family:"Gloam Bone Narrow";src:url(data:font/woff2;base64,{{BONEN}}) format("woff2");font-display:block}
 @font-face{font-family:"Gloam Bone Mono";src:url(data:font/woff2;base64,{{BONEM}}) format("woff2");font-display:block}
 @font-face{font-family:"Gloam Bone Lantern";src:url(data:font/woff2;base64,{{BONEL}}) format("woff2");font-display:block}
+@font-face{font-family:"Gloam Pico";src:url(data:font/woff2;base64,{{PICO}}) format("woff2");font-display:block}
 @font-palette-values --b-bone{font-family:"Gloam Bone Lantern";base-palette:0}
 @font-palette-values --b-ember{font-family:"Gloam Bone Lantern";base-palette:1}
 @font-palette-values --b-moss{font-family:"Gloam Bone Lantern";base-palette:2}
@@ -50,6 +51,7 @@ html[data-pal=blood] .blan{font-palette:--b-blood}
 html[data-pal=bone] .blan{font-palette:--b-bone}
 .bone{font-family:"Gloam Bone",monospace}.bnar{font-family:"Gloam Bone Narrow",monospace}.bmono{font-family:"Gloam Bone Mono",monospace}
 .blan{font-family:"Gloam Bone Lantern","Gloam Bone",monospace}
+.pico{font-family:"Gloam Pico",monospace}
 .lan.p-blood{font-palette:--blood!important}
 .lan.p-ember{font-palette:--ember!important}
 
@@ -143,6 +145,20 @@ h2{font-weight:normal;font-size:64px;line-height:80px}
 .term{margin-top:24px;padding:24px;overflow:auto}
 .term pre{font:32px/32px "Gloam Bone Mono",monospace;color:var(--ink);margin:0;white-space:pre}
 .term pre .a{color:var(--acc)}.term pre .d{color:var(--faint)}.term pre .r{color:#e2453c}.term pre .g{color:#9fd14f}
+/* pico */
+.pico-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:32px;margin-top:48px;align-items:start}
+.win{background:#0e0c14;box-shadow:0 -4px 0 0 var(--line2),0 4px 0 0 var(--line2),-4px 0 0 0 var(--line2),4px 0 0 0 var(--line2);margin:4px}
+.win .bar{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:2px solid var(--line);color:var(--faint)}
+.win .bar i{width:10px;height:10px;background:var(--line2);display:inline-block}
+.win .bar span{margin-left:8px}
+.win pre{font:24px/24px "Gloam Pico",monospace;padding:20px 24px;margin:0;white-space:pre;overflow:auto;color:var(--ink)}
+.win pre .b{color:#6fbef0}.win pre .g{color:#9fd14f}.win pre .a{color:var(--acc)}.win pre .r{color:#e2453c}.win pre .d{color:var(--faint)}
+.win pre .cur{background:var(--ink);animation:blink 1s steps(1) infinite}
+.picoscale{display:flex;gap:6px;margin-top:16px;align-items:center}
+.cfg .code{margin-top:0}
+.cfg .s32{margin-bottom:12px}
+.facts{margin-top:20px;display:grid;grid-template-columns:auto 1fr;gap:6px 20px;color:var(--dim)}
+.facts b{color:var(--ink);font-weight:normal}
 /* tester */
 .ctrl{display:flex;flex-wrap:wrap;gap:24px;align-items:center;margin-top:40px}
 .ctrl .grp{display:flex;gap:6px;align-items:center}
@@ -233,7 +249,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   .feat{grid-template-columns:1fr 1fr}
   .cuts{grid-template-columns:1fr}
   .bonepair{grid-template-columns:auto auto;}.bonepair p{grid-column:1/-1}
-  .play,.get{grid-template-columns:1fr}
+  .play,.get,.pico-grid{grid-template-columns:1fr}
   .gwrap{grid-template-columns:1fr}
   .loupe{position:static;order:-1}
 }
@@ -250,6 +266,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   .feat{grid-template-columns:1fr}
   .cut .w{font-size:64px;line-height:80px}.cut .t{font-size:16px;line-height:24px}
   .term pre{font-size:16px;line-height:16px}
+  .win pre{font-size:16px;line-height:16px;padding:14px}
   .langs div{grid-template-columns:1fr;gap:0}
   .langs p{font-size:16px;line-height:24px}
   .map{font-size:16px;line-height:16px}.map .r{height:16px}.map .c{width:8px}
@@ -262,7 +279,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
 <body>
 <header class="bar"><div class="wrap in">
   <a class="mark lan" href="#hero">Gloam</a>
-  <nav><a href="#nib">Nib</a><a href="#bone">Bone</a><a href="#tester">Tester</a><a href="#glyphs">Glyphs</a><a href="#play">In play</a><a href="#get">Get it</a></nav>
+  <nav><a href="#nib">Nib</a><a href="#bone">Bone</a><a href="#pico">Pico</a><a href="#tester">Tester</a><a href="#glyphs">Glyphs</a><a href="#play">In play</a><a href="#get">Get it</a></nav>
   <div class="lit" title="Glyphs you have found with the lantern"><span class="lbl">Lit</span> <b id="litN">0</b>/<span id="litT">0</span><div class="meter"><i id="litBar"></i></div></div>
   <div class="pals" role="group" aria-label="Lantern palette" id="pals"></div>
 </div></header>
@@ -276,7 +293,7 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
     <div class="ctas"><a class="btn" href="#get">&#x2193; Get the fonts</a><a class="btn ghost" href="#tester">Try it</a></div>
   </div>
   <div class="hero-hint">Move your lantern through the dark &mdash; every glyph it touches is <b>lit</b>.</div>
-  <div class="hero-ver">v1.100 &middot; 6 families</div>
+  <div class="hero-ver">v1.200 &middot; 7 families</div>
   <div class="toast px" id="toast"></div>
 </section>
 
@@ -317,11 +334,61 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   <div class="term px"><pre id="term"></pre></div>
 </section>
 
+<section class="blk" id="pico">
+  <div class="kicker">Gloam Pico</div>
+  <h2 class="pico">Tiny, for the terminal</h2>
+  <p class="lede">A fantasy-console cut for Ghostty and other terminals: <em>3 &times; 5</em> capitals, real lowercase with ascenders and descenders, all in a <em>4 &times; 8</em> cell. Even at this size the nib leaves its mark: <span class="pico">O</span>, <span class="pico">S</span> and <span class="pico">o</span> are clipped at NW and SE.</p>
+  <div class="pico-grid">
+    <div>
+      <div class="win"><div class="bar"><i></i><i></i><i></i><span>~/gloam &mdash; zsh</span></div><pre id="picoterm"></pre></div>
+      <div class="picoscale"><span class="dim" style="margin-right:6px">Scale</span><button class="chip" data-ps="8">1&times;</button><button class="chip" data-ps="16">2&times;</button><button class="chip" data-ps="24" aria-pressed="true">3&times;</button><button class="chip" data-ps="32">4&times;</button></div>
+    </div>
+    <div class="cfg px" style="padding:24px">
+      <div class="s32">Ghostty setup</div>
+      <div class="code" id="gcfg"># Gloam Pico for Ghostty
+# 1. Install fonts/GloamPico-Regular.ttf
+# 2. Add these lines to your Ghostty config
+
+font-family = "Gloam Pico"
+
+# Cell = 4 x 8 font pixels. The em must be
+# a multiple of 8 device pixels:
+#   macOS Retina: 12 -> 3x, 16 -> 4x, 24 -> 6x
+#   Linux 96 dpi: 12 -> 2x, 18 -> 3x, 24 -> 4x
+font-size = 12
+
+# No synthetic bold/italic: they smear pixels.
+font-synthetic-style = false
+# Bold as bright colours (Ghostty 1.2+;
+# older: bold-is-bright = true)
+bold-color = bright
+
+# Linux: hard 1-bit pixel edges
+freetype-load-flags = no-hinting,monochrome
+
+# macOS: keep strokes one pixel wide
+font-thicken = false
+
+# Optional line spacing. 25% = 2 font px,
+# split evenly, so pixels stay whole:
+# adjust-cell-height = 25%
+</div>
+      <div style="margin-top:12px"><button class="chip" id="gcopy">Copy config</button></div>
+      <div class="facts">
+        <span>Cell</span><b>4 &times; 8 px, every glyph</b>
+        <span>Crisp at</span><b>8, 16, 24, 32 px em</b>
+        <span>fontconfig</span><b>spacing = mono</b>
+        <span>Glyphs</span><b>223: ASCII, Latin-1 letters, box, blocks, Powerline</b>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="blk" id="tester">
   <div class="kicker">Type tester</div>
   <h2>Write something in the dark</h2>
   <div class="ctrl">
-    <div class="grp"><span class="lbl">Family</span><button class="chip" data-fam="Gloam" aria-pressed="true">Gloam</button><button class="chip" data-fam="lan" aria-pressed="false">Lantern</button><button class="chip" data-fam="bone" aria-pressed="false">Bone</button><button class="chip" data-fam="bnar" aria-pressed="false">Narrow</button><button class="chip" data-fam="bmono" aria-pressed="false">Mono</button><button class="chip" data-fam="blan" aria-pressed="false">Bone Lantern</button></div>
+    <div class="grp"><span class="lbl">Family</span><button class="chip" data-fam="Gloam" aria-pressed="true">Gloam</button><button class="chip" data-fam="lan" aria-pressed="false">Lantern</button><button class="chip" data-fam="bone" aria-pressed="false">Bone</button><button class="chip" data-fam="bnar" aria-pressed="false">Narrow</button><button class="chip" data-fam="bmono" aria-pressed="false">Mono</button><button class="chip" data-fam="blan" aria-pressed="false">Bone Lantern</button><button class="chip" data-fam="pico" aria-pressed="false">Pico</button></div>
     <div class="grp" id="sizes"><span class="lbl">Size</span></div>
     <div class="grp"><span class="lbl">Ink</span><button class="chip" data-ink="ink" aria-pressed="true">Bone</button><button class="chip" data-ink="acc" aria-pressed="false">Palette</button></div>
   </div>
@@ -383,14 +450,15 @@ footer .in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;al
   <h2>Take a lantern with you</h2>
   <div class="get">
     <div class="px">
-      <div class="s32">Gloam v1.100</div>
-      <p class="dim">All six families in TTF and WOFF2 (plus OTF for the outline ones), the ASCII glyph sources, the build scripts and a README.</p>
+      <div class="s32">Gloam v1.200</div>
+      <p class="dim">All seven families in TTF and WOFF2 (plus OTF for the non-colour ones), the ASCII glyph sources, the build scripts, a Ghostty config and a README.</p>
       <div class="dl" id="dl">
-        <button class="btn" data-file="zip">&#x2193; Gloam-1.100.zip</button>
+        <button class="btn" data-file="zip">&#x2193; Gloam-1.200.zip</button>
         <button class="btn ghost" data-file="reg">&#x2193; Gloam-Regular.ttf</button>
         <button class="btn ghost" data-file="lan">&#x2193; GloamLantern-Regular.ttf</button>
         <button class="btn ghost bone" data-file="bone">&#x2193; GloamBone-Regular.ttf</button>
         <button class="btn ghost bmono" data-file="bmono">&#x2193; GloamBoneMono-Regular.ttf</button>
+        <button class="btn ghost pico" data-file="pico">&#x2193; GloamPico-Regular.ttf</button>
       </div>
       <p class="note" id="dlnote"></p>
       <div class="code" id="css"><b>@font-face</b> { font-family: "Gloam";
@@ -409,9 +477,9 @@ pre  { font: 16px/1 "Gloam Bone Mono"; }</div>
       <div class="s32">Details</div>
       <div class="spec">
         <span>Designer</span><div>Tuomas Taini</div>
-        <span>Version</span><div>1.100 &middot; 2026</div>
-        <span>Families</span><div>Gloam &middot; Gloam Lantern &middot; Gloam Bone &middot; Bone Narrow &middot; Bone Mono &middot; Bone Lantern</div>
-        <span>Glyphs</span><div>357 per family</div>
+        <span>Version</span><div>1.200 &middot; 2026</div>
+        <span>Families</span><div>Gloam &middot; Gloam Lantern &middot; Gloam Bone &middot; Bone Narrow &middot; Bone Mono &middot; Bone Lantern &middot; Gloam Pico</div>
+        <span>Glyphs</span><div>357 per family (Pico: 223)</div>
         <span>Bone Mono</span><div>every glyph 8 px wide, the same cell as the box glyphs</div>
         <span>Grid</span><div>UPM 1600 &middot; 1 px = 100 units</div>
         <span>Vertical</span><div>x 7 &middot; cap 10 &middot; asc 13 &middot; desc 3 px</div>
@@ -437,6 +505,7 @@ pre  { font: 16px/1 "Gloam Bone Mono"; }</div>
 <script id="f-lan" type="application/octet-stream">{{LTTF}}</script>
 <script id="f-bone" type="application/octet-stream">{{BTTF}}</script>
 <script id="f-bmono" type="application/octet-stream">{{BMTTF}}</script>
+<script id="f-pico" type="application/octet-stream">{{PTTF}}</script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -664,7 +733,7 @@ function mark(){$$('#opts button').forEach((b,i)=>b.classList.toggle('on',i===op
 
 /* ---------- downloads ---------- */
 function b64(id){const s=atob($(id).textContent.trim());const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
-const FILES={zip:['#f-zip','Gloam-1.100.zip'],reg:['#f-reg','Gloam-Regular.ttf'],lan:['#f-lan','GloamLantern-Regular.ttf'],bone:['#f-bone','GloamBone-Regular.ttf'],bmono:['#f-bmono','GloamBoneMono-Regular.ttf']};
+const FILES={zip:['#f-zip','Gloam-1.200.zip'],reg:['#f-reg','Gloam-Regular.ttf'],lan:['#f-lan','GloamLantern-Regular.ttf'],bone:['#f-bone','GloamBone-Regular.ttf'],bmono:['#f-bmono','GloamBoneMono-Regular.ttf'],pico:['#f-pico','GloamPico-Regular.ttf']};
 let dlns=null;
 $$('#dl button').forEach(b=>b.onclick=async()=>{const [id,name]=FILES[b.dataset.file];
   if(!dlns){try{const url=URL.createObjectURL(new Blob([b64(id)]));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);$('#dlnote').textContent='Downloading '+name+'…'}catch(e){$('#dlnote').textContent='Download failed in this browser.'}return}
@@ -690,12 +759,19 @@ function drawTerm(){
   L.push(' HP <span class="r">'+'▓'.repeat(6)+'</span><span class="d">'+'░'.repeat(4)+'</span>  MP <span class="a">'+'▒'.repeat(4)+'</span><span class="d">'+'░'.repeat(6)+'</span>  LV 07');
   $('#term').innerHTML=L.join('\n')}
 
+/* ---------- Pico terminal ---------- */
+function drawPico(){const T=[[['~/gloam ','b'],['main ','g'],['$ ','a'],['ls fonts/']],[['Gloam-Regular.ttf    GloamBone-Regular.ttf']],[['GloamPico-Regular.ttf GloamLantern.ttf']],[['~/gloam ','b'],['main ','g'],['$ ','a'],['cat hello.lua']],[['-- pico-style, nib-cut','d']],[['function ','r'],['_draw','a'],['()']],[['  cls(0)']],[['  print("hyvää yötä! ♥", 8, 8, '],['7','a'],[')']],[['  for ','r'],['i=0,9 '],['do ','r'],['spr(i, i*8, 64) '],['end','r']],[['end','r']],[['~/gloam ','b'],['main ','g'],['$ ','a'],[' ','cur']]];
+  const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  $('#picoterm').innerHTML=T.map(l=>l.map(([t,c])=>c?`<span class="${c}">${esc(t)}</span>`:esc(t)).join('')).join('\n')}
+$$('[data-ps]').forEach(b=>b.onclick=()=>{const v=+b.dataset.ps;$('#picoterm').style.fontSize=v+'px';$('#picoterm').style.lineHeight=v+'px';$$('[data-ps]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('#gcopy').onclick=async()=>{try{await navigator.clipboard.writeText($('#gcfg').textContent);$('#gcopy').textContent='Copied'}catch(e){$('#gcopy').textContent='Select & copy'}setTimeout(()=>$('#gcopy').textContent='Copy config',1600)};
+
 /* ---------- boot ---------- */
-Promise.all(['Gloam','"Gloam Lantern"','"Gloam Bone"','"Gloam Bone Narrow"','"Gloam Bone Mono"','"Gloam Bone Lantern"'].map(f=>document.fonts.load('32px '+f))).catch(()=>{}).then(()=>{
+Promise.all(['Gloam','"Gloam Lantern"','"Gloam Bone"','"Gloam Bone Narrow"','"Gloam Bone Mono"','"Gloam Bone Lantern"','"Gloam Pico"'].map(f=>document.fonts.load('32px '+f))).catch(()=>{}).then(()=>{
   setPal(store.get('pal','ember'));
   $('#litN').textContent=lit.size;$('#litBar').style.width=(lit.size/COLLECT.length*100)+'%';
   layout();requestAnimationFrame(frame);
-  applyT();renderGrid();drawLoupe();reset();talk('start');drawBonePair();drawTerm();
+  applyT();renderGrid();drawLoupe();reset();talk('start');drawBonePair();drawTerm();drawPico();
   window.addEventListener('resize',()=>{drawLoupe();drawBonePair()});
 });
 })();

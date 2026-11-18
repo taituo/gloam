@@ -29,6 +29,7 @@ Gloam pretends every pixel was laid by a broad pen held at 45°. Strokes that tr
 | **Gloam Bone Narrow** | Bone with one counter column removed: about 17 % narrower | `GloamBoneNarrow-Regular.ttf` · `.otf` · `.woff2` |
 | **Gloam Bone Mono** | Bone in 8 × 16 px cells, the same cell as the box-drawing glyphs | `GloamBoneMono-Regular.ttf` · `.otf` · `.woff2` |
 | **Gloam Bone Lantern** | Colour version of Bone, bone palette by default | `GloamBoneLantern-Regular.ttf` · `.woff2` |
+| **Gloam Pico** | Fantasy-console terminal face: 3 × 5 capitals and real lowercase in a 4 × 8 cell | `GloamPico-Regular.ttf` · `.otf` · `.woff2` |
 
 ![Lantern palettes](images/palettes.png)
 
@@ -47,9 +48,35 @@ Every Bone Mono glyph is 8 px wide, so text and box drawing share one grid:
 
 ![Gloam Bone Mono terminal](images/bone-mono-terminal.png)
 
+## Gloam Pico, for terminals
+
+![Gloam Pico in a terminal](images/pico-terminal.png)
+
+A tiny monospace cut for Ghostty and other terminals. Capitals are 3 × 5 px. Lowercase has a 4 px x-height, with real ascenders and descenders. Every glyph sits in the same 4 × 8 px cell, and the pen rule still shows: `O`, `S`, `o` and `8` are clipped at NW and SE.
+
+![Gloam Pico character set](images/pico-charset.png)
+
+- **Terminal-ready metrics.** Every glyph has the same advance. The cell metrics are whole pixels (UPM 800, 1 px = 100 units, ascent 6 px, descent 2 px). `isFixedPitch` and PANOSE are set to monospaced, so fontconfig reports `spacing=mono`.
+- **223 glyphs.** These cover ASCII, the Latin-1 letters (ä ö å é ñ ß ç …), box drawing, blocks and shades, Powerline separators, arrows, ✓ ✗ ♥ ★ and •.
+- **Crisp sizes.** The em must be a multiple of 8 device pixels. In Ghostty, `font-size = 12` works on both macOS Retina (3×) and Linux at 96 dpi (2×), and so does `24`.
+
+Ghostty config ([`extras/ghostty.config`](extras/ghostty.config)):
+
+```ini
+font-family = "Gloam Pico"
+font-size = 12
+font-synthetic-style = false               # no smeared fake bold/italic
+bold-color = bright                        # Ghostty 1.2+ (older: bold-is-bright = true)
+freetype-load-flags = no-hinting,monochrome  # Linux: hard 1-bit pixel edges
+font-thicken = false                       # macOS
+# adjust-cell-height = 25%                 # optional line spacing, stays on whole pixels
+```
+
+Pico has no bold or italic, because at 3 px wide there is no room for either. Turning off synthetic styles and showing bold as bright colours keeps every pixel sharp.
+
 ## Character set
 
-357 glyphs in every family:
+357 glyphs in every family except Pico (223, listed above):
 
 - Basic Latin and Latin-1, plus the core of Latin Extended-A. This covers Finnish, Swedish, Danish, Norwegian, Icelandic, German, French, Spanish, Polish, Czech, Turkish, Romanian and Hungarian.
 - 41 box-drawing, block and shade glyphs on a strict 8 × 16 px cell (single, double and rounded lines, plus `░▒▓█`). Single lines are 2 px wide in Gloam and 1 px in Bone.
@@ -95,6 +122,9 @@ source/glyphs/      every Gloam glyph as an ASCII bitmap: lower, upper, figures,
 source/glyphs-bone/ the 1 px Bone redraws (anything not redrawn is shared with Gloam)
 source/compose.py   accents, box drawing, blocks, kerning, per-style setup
 source/widths.py    Bone Narrow and Bone Mono width transforms
+source/glyphs-pico/ Gloam Pico bitmaps (3 × 5 in a 4 × 8 cell)
+source/pico.py      Gloam Pico builder (monospace terminal metrics)
+extras/             Ghostty config for Gloam Pico
 source/build.py     bitmaps → TTF / OTF / WOFF2 for all six families, plus COLR/CPAL
 source/proof.py   pixel-exact PNG proofs, optionally with the Lantern layers
 site/             specimen page template and builder
@@ -124,7 +154,8 @@ To edit and rebuild:
 
 ```sh
 pip install fonttools skia-pathops brotli pillow
-python3 source/build.py            # writes fonts/
+python3 source/build.py            # writes fonts/ (Gloam + Bone families)
+python3 source/pico.py             # writes fonts/GloamPico-Regular.*
 python3 site/build_site.py         # writes docs/index.html
 python3 source/proof.py proof.png "Hyvää yötä" --scale 6 --lantern ember
 python3 source/proof.py bone.png "Hyvää yötä" --style bone   # bone | bone-narrow | bone-mono

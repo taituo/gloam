@@ -44,7 +44,7 @@ def glyph_data(style='gloam'):
 def kit_zip():
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
-        for base, sub in (('fonts', ''), ('source', ''), ('source/glyphs', ''), ('source/glyphs-bone', '')):
+        for base, sub in (('fonts', ''), ('source', ''), ('source/glyphs', ''), ('source/glyphs-bone', ''), ('source/glyphs-pico', ''), ('extras', '')):
             d = os.path.join(ROOT, base)
             for fn in sorted(os.listdir(d)):
                 p = os.path.join(d, fn)
@@ -65,6 +65,7 @@ def main():
     t = t.replace('{{GLYPHS_BNAR}}', js('bone-narrow')).replace('{{GLYPHS_BMONO}}', js('bone-mono'))
     t = t.replace('{{BONE}}', b64f('GloamBone-Regular.woff2')).replace('{{BONEN}}', b64f('GloamBoneNarrow-Regular.woff2'))
     t = t.replace('{{BONEM}}', b64f('GloamBoneMono-Regular.woff2')).replace('{{BONEL}}', b64f('GloamBoneLantern-Regular.woff2'))
+    t = t.replace('{{PICO}}', b64f('GloamPico-Regular.woff2')).replace('{{PTTF}}', b64f('GloamPico-Regular.ttf'))
     t = t.replace('{{BTTF}}', b64f('GloamBone-Regular.ttf')).replace('{{BMTTF}}', b64f('GloamBoneMono-Regular.ttf'))
     t = t.replace('{{REG}}', b64f('Gloam-Regular.woff2')).replace('{{LAN}}', b64f('GloamLantern-Regular.woff2'))
     t = t.replace('{{ZIP}}', base64.b64encode(kit_zip()).decode())
